@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="Hello AI — a beautiful, fast AI chatbot. Ask anything. Built-in answers when offline, full AI when connected to the backend.">
 <meta name="theme-color" content="#0f172a">
-<title>Hello AI — Ask Anything ✨</title>
+<title>Hello AI — Ask Anything 🚀💎</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✨</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
 <style>
   :root{
     --bg:#0b1220; --bg2:#0f172a;
@@ -198,43 +198,43 @@
 
 <div class="app">
   <header>
-    <div class="logo" aria-hidden="true">✨</div>
+    <div class="logo" aria-hidden="true">🤖</div>
     <div class="title">
       <h1>Hello <span>AI</span></h1>
       <p>Ask anything — fast, friendly &amp; free</p>
     </div>
     <div class="header-actions">
-      <button class="icon-btn" id="clearBtn" type="button" title="Clear chat" aria-label="Clear chat">🗑️</button>
-      <button class="icon-btn" id="themeBtn" type="button" title="Switch dark / light mode" aria-label="Switch dark or light mode">🌙</button>
+      <button class="icon-btn" id="clearBtn" type="button" title="Clear chat" aria-label="Clear chat">🧹</button>
+      <button class="icon-btn" id="themeBtn" type="button" title="Switch dark / light mode" aria-label="Switch dark or light mode">🌚</button>
     </div>
   </header>
 
   <div class="status-bar" role="status" aria-live="polite">
     <span class="pill" id="statusPill"><span class="dot amber" id="statusDot"></span><span id="statusText">Checking backend…</span></span>
-    <span class="pill" id="modePill">💬 <span id="modeText">Built-in answers</span></span>
+    <span class="pill" id="modePill">💎 <span id="modeText">Built-in answers</span></span>
   </div>
 
   <!-- Shown when no backend is configured. Hidden automatically when CLOUD_RUN_URL is set. -->
   <div class="notice" id="backendNotice" role="note">
-    <span class="ico">💡</span>
+    <span class="ico">🔥</span>
     <div><b>Running on built-in answers right now.</b><br>
     No backend is connected yet, so I answer from built-in knowledge on this page. For full AI answers on complex questions, connect the backend by setting <code>window.CLOUD_RUN_URL</code> in this file to your Cloud Run URL — then I’ll use the live AI model instead. Nothing is broken; this is the offline-friendly mode.</div>
   </div>
 
   <main class="chat" id="chat" aria-live="polite" aria-label="Chat messages">
     <div class="empty" id="emptyState">
-      <div class="big">👋</div>
+      <div class="big">🤖🚀</div>
       <h2>Hello, Aadidev! What shall we explore?</h2>
       <p>Try a simple hello — or a complex question about AI, coding, science, history or anything else. If the backend is connected you get live AI answers; otherwise you get clear built-in answers instantly, with no waiting.</p>
     </div>
   </main>
 
   <div class="chips" id="chips">
-    <button class="chip" type="button">👋 Hello!</button>
-    <button class="chip" type="button">🤖 What is AI?</button>
-    <button class="chip" type="button">💻 Explain Python in simple words</button>
-    <button class="chip" type="button">🌌 What is a black hole?</button>
-    <button class="chip" type="button">🎵 Tell me about music &amp; peace</button>
+    <button class="chip" type="button">🚀 Hello!</button>
+    <button class="chip" type="button">🧠 What is AI?</button>
+    <button class="chip" type="button">🐍 Explain Python in simple words</button>
+    <button class="chip" type="button">🪐 What is a black hole?</button>
+    <button class="chip" type="button">🎶 Tell me about music &amp; peace</button>
   </div>
 
   <form class="composer" id="composer">
@@ -245,7 +245,7 @@
 
   <footer>
     <b>Hello AI</b> • Built-in answers work offline • Full AI needs the backend connected<br>
-    Static site — no sign-in, no tracking. Made for Aadidev ✨
+    Static site — no sign-in, no tracking. Made for Aadidev 🚀💎
   </footer>
 </div>
 
@@ -257,7 +257,7 @@
    Leave it as "" and the site uses built-in answers + shows
    a clear notice (no error, no broken state).
    ============================================================ */
-window.CLOUD_RUN_URL = "https://precision-clause-outthink.ngrok-free.dev"; // <-- set your Cloud Run URL here
+window.CLOUD_RUN_URL = "https://precision-clause-outthink.ngrok-free.dev"; // live Qwen backend via Colab + ngrok
 
 const chat = document.getElementById('chat');
 const emptyState = document.getElementById('emptyState');
@@ -274,7 +274,7 @@ const savedTheme = localStorage.getItem('hello-ai-theme');
 if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
 function syncThemeBtn(){
   const dark = document.documentElement.getAttribute('data-theme') !== 'light';
-  themeBtn.textContent = dark ? '🌙' : '☀️';
+  themeBtn.textContent = dark ? '🌚' : '🌞';
   themeBtn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
 }
 syncThemeBtn();
@@ -312,7 +312,7 @@ function addMessage(text, who, opts = {}){
   const wrap = document.createElement('div');
   wrap.className = 'msg ' + who + (opts.error ? ' error' : '');
   const av = document.createElement('div');
-  av.className = 'avatar'; av.textContent = who === 'user' ? '🧑' : '✨';
+  av.className = 'avatar'; av.textContent = who === 'user' ? '🧑‍🚀' : '🤖';
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
   bubble.textContent = text;
@@ -333,23 +333,23 @@ function showTyping(){
   hideEmpty();
   typingEl = document.createElement('div');
   typingEl.className = 'msg ai';
-  typingEl.innerHTML = '<div class="avatar">✨</div><div class="bubble typing" aria-label="AI is typing"><i></i><i></i><i></i></div>';
+  typingEl.innerHTML = '<div class="avatar">🤖</div><div class="bubble typing" aria-label="AI is typing"><i></i><i></i><i></i></div>';
   chat.appendChild(typingEl); scrollDown();
 }
 function hideTyping(){ if (typingEl){ typingEl.remove(); typingEl = null; } }
 
 /* ---------- Built-in answers (fallback — this is why complex questions now get an answer) ---------- */
 const KB = [
-  { k:['hello','hi','hey','vanakkam','namaste','hai'], a:`Hello, Aadidev! 👋 Great to see you.\n\nI'm Hello AI. Ask me anything — a simple hello, or a complex question about AI, coding, science, music or life. If the backend is connected I'll answer with the live AI model; right now I'm answering from built-in knowledge, instantly.` },
-  { k:['who are you','your name','about yourself','what are you'], a:`I'm Hello AI — a friendly chatbot made for you, Aadidev. ✨\n\nI can chat, explain things in simple words, help with ideas for your songs, videos and AI projects, and answer questions. When the Cloud Run backend is connected I use the full AI model (Qwen). Without it, I use the built-in answers on this page so you never get silence.` },
+  { k:['hello','hi','hey','vanakkam','namaste','hai'], a:`Hello, Aadidev! 🚀 Great to see you.\n\nI'm Hello AI. Ask me anything — a simple hello, or a complex question about AI, coding, science, music or life. If the backend is connected I'll answer with the live AI model; right now I'm answering from built-in knowledge, instantly.` },
+  { k:['who are you','your name','about yourself','what are you'], a:`I'm Hello AI — a friendly chatbot made for you, Aadidev. 🤖💎\n\nI can chat, explain things in simple words, help with ideas for your songs, videos and AI projects, and answer questions. When the Cloud Run backend is connected I use the full AI model (Qwen). Without it, I use the built-in answers on this page so you never get silence.` },
   { k:['what is ai','artificial intelligence','explain ai'], a:`AI — Artificial Intelligence — means teaching computers to do things that normally need human thinking: understanding language, recognising pictures, making decisions and creating new things.\n\n• Machine Learning: the computer learns patterns from examples, instead of following only fixed rules.\n• Deep Learning: a kind of ML using many-layered "neural networks", inspired by the brain.\n• Generative AI: AI that creates — text, images, music, video. Examples: ChatGPT, Gemini, Kling, LTX-2, Wan.\n\nYour dream — long-form 20–30 minute cinematic video generation — is exactly where generative AI is heading.` },
   { k:['python'], a:`Python in simple words 🐍\n\nPython is a programming language that reads almost like English, so it's one of the best first languages to learn.\n\nExample:\n  print("Hello, Aadidev!")\n\n• Easy to read, huge community, tons of free libraries\n• Used for AI, websites, apps, automation and data\n• Try it free in Google Colab — no install needed\n\nWant a tiny first project? Ask me: "Give me a Python hello project".` },
   { k:['black hole','blackhole'], a:`A black hole is a place in space where gravity is so strong that not even light can escape. 🌌\n\n• It forms when a very massive star collapses at the end of its life.\n• The "event horizon" is the point of no return — cross it and nothing comes back.\n• We can't see a black hole directly, but we can see stars orbiting it and light bending around it.\n• The first photo of a black hole (M87*) was taken in 2019.` },
   { k:['music','peace','song','elyswave','echoes of the mountains'], a:`Music and peace go beautifully together. 🎵\n\nSlow, gentle melodies, nature sounds and a calm voice help the mind slow down — that's why your song "Echoes of the Mountains" works: mountains, mist and a peaceful voice make people feel calm.\n\nTip for your channel ELYSWAVE MUSIC: keep the visuals slow and steady — one beautiful mountain scene at a time, no fast cuts — and let the song breathe.` },
   { k:['how to build an ai','build an ai','make an ai','create ai'], a:`How to build an AI — the short roadmap:\n\n1. Pick one small job: e.g. a chatbot that replies "hello".\n2. Pick a ready-made model (like Qwen or FLAN-T5) — you don't train from zero.\n3. Test it in Google Colab (free) with Python.\n4. Make a simple web page that sends your message to the model and shows its reply.\n5. Put the model on a backend (Cloud Run) and the page on Netlify.\n\nThat's exactly how this Hello AI site is built — page here, model on the backend.` },
   { k:['trading','stock'], a:`Trading — start slow and safe:\n\n• First learn, don't rush in with real money. Paper-trade (practice with fake money) first.\n• Never invest money you need for daily life.\n• Learn the basics: what a stock is, risk, diversification (don't put everything in one place).\n• Be careful of anyone promising guaranteed returns — there are none.\n\nWant a step-by-step beginner guide? Ask me for it and I'll lay it out lesson by lesson.` },
-  { k:['thank'], a:`You're very welcome! 😊 Anything else you'd like to explore?` },
-  { k:['bye','goodbye','good night'], a:`Goodbye, Aadidev! 👋 Come back anytime — I'll be here. Take care and keep creating. ✨` },
+  { k:['thank'], a:`You're very welcome! 😎 Anything else you'd like to explore?` },
+  { k:['bye','goodbye','good night'], a:`Goodbye, Aadidev! 👋🌈 Come back anytime — I'll be here. Take care and keep creating. ✨` },
   { k:['how are you'], a:`I'm doing great — running smoothly and ready to chat! 😊 How are you today?` },
   { k:['what can you do','help','what do you do'], a:`I can:\n• Chat and answer questions in simple words\n• Explain AI, coding, science, music and more\n• Help with ideas for songs, videos and your AI projects\n• Give step-by-step guides (trading, building an AI, Python)\n\nTry asking a complex question — if the backend is connected you'll get a live AI answer; otherwise I'll do my best from built-in knowledge.` },
 ];
@@ -455,7 +455,7 @@ document.getElementById('clearBtn').addEventListener('click', () => {
 if (!sessionStorage.getItem('hello-ai-welcomed')){
   sessionStorage.setItem('hello-ai-welcomed', '1');
   setTimeout(() => {
-    addMessage('Hello, Aadidev! 👋 I\'m Hello AI.\n\nAsk me anything — even a complex question. Right now I\'m on built-in answers, so I reply instantly. Connect the backend and I\'ll switch to the full live AI model automatically.', 'ai', { source: (window.CLOUD_RUN_URL || '').trim() ? 'Live AI • Cloud Run' : 'Built-in answer' });
+    addMessage('Hello, Aadidev! 🤖🚀 I\'m Hello AI.\n\nAsk me anything — even a complex question. Right now I\'m on built-in answers, so I reply instantly. Connect the backend and I\'ll switch to the full live AI model automatically.', 'ai', { source: (window.CLOUD_RUN_URL || '').trim() ? 'Live AI • Cloud Run' : 'Built-in answer' });
   }, 500);
 }
 input.focus();
