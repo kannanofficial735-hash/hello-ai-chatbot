@@ -1,0 +1,16 @@
+# hello-ai-chatbot backend — Python 3.11+
+# Install:  pip install -r requirements.txt
+# NOTE: torch is large (~800 MB - 2 GB download). On a free host this is
+# the main cost. For CPU-only hosts you can use the CPU wheel instead:
+#   pip install torch --index-url https://download.pytorch.org/whl/cpu
+# ...then install the rest of this file. Do NOT do that inside this file
+# (pip only honours one index URL per install), do it as a separate step
+# if the host allows it (Hugging Face Spaces does it automatically
+# via its own CPU image; see BACKEND-PLAN.md).
+
+torch>=2.4
+transformers>=4.44
+accelerate>=0.34
+flask>=3.0
+flask-cors>=5.0
+gunicorn>=22.0
