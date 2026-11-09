@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hello AI — small model chatbot</title>
+<style>
+body{margin:0;font-family:system-ui,Arial,sans-serif;background:#111827;color:#f9fafb}
+header{padding:20px;text-align:center;background:#1f2937}
+h1{margin:0;font-size:28px}
+p.sub{color:#9ca3af;margin:6px 0 0}
+#chat{max-width:720px;margin:20px auto;padding:0 16px}
+.msg{padding:12px 16px;border-radius:14px;margin:10px 0;white-space:pre-wrap;line-height:1.5}
+.user{background:#2563eb;margin-left:80px}
+.bot{background:#374151;margin-right:80px}
+#status{text-align:center;color:#fbbf24}
+#examples{text-align:center;margin:10px 0}
+.chip{background:#374151;border:1px solid #4b5563;color:#f9fafb;border-radius:20px;padding:6px 12px;margin:4px;cursor:pointer}
+#form{display:flex;gap:8px;max-width:720px;margin:0 auto 30px;padding:0 16px}
+#input{flex:1;padding:12px;border-radius:10px;border:1px solid #4b5563;background:#1f2937;color:#fff;font-size:16px}
+button.send{padding:12px 20px;border-radius:10px;border:0;background:#2563eb;color:#fff;font-size:16px;cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}
+</style>
+</head>
+<body>
+<header><h1>Hello AI</h1><p class="sub">Chat with a small open-source model: <b>google/flan-t5-small (80M)</b>, running in your browser with Transformers.js</p><p class="sub">Small 80M model — answers are short and can be imperfect. First load downloads about 300 MB and may take a minute.</p></header>
+<div id="chat"></div>
+<p id="status">Loading the small model, please wait...</p>
+<div id="examples">
+<button class="chip">Hello</button>
+<button class="chip">Say hello in a friendly way</button>
+<button class="chip">Write one short sentence about the sun</button>
+<button class="chip">Translate to French: Hello, how are you?</button>
+</div>
+<form id="form"><input id="input" placeholder="Type a message, e.g. Hello" autocomplete="off"><button class="send" id="send" type="submit" disabled>Send</button></form>
+<script type="module">
+import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2';
+const chat = document.getElementById('chat');
+const status = document.getElementById('status');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('send');
+function add(text, who){ const d=document.createElement('div'); d.className='msg '+who; d.textContent=text; chat.appendChild(d); d.scrollIntoView(); return d; }
+add('Hello! I am a small AI model (flan-t5-small, 80M). I am loading in your browser — please wait a moment, then say hello!', 'bot');
+let generator = null;
+try {
+  generator = await pipeline('text2text-generation', 'Xenova/flan-t5-small');
+  status.textContent = 'Model ready — type a message below and press Send.';
+  sendBtn.disabled = false;
+} catch (e) {
+  status.textContent = 'Model failed to load: ' + e.message + ' — please reload the page and try again.';
+}
+async function ask(text){
+  const thinking = add('...', 'bot');
+  try {
+    const out = await generator(text, { max_new_tokens: 60 });
+    thinking.textContent = out[0].generated_text || '(no reply)';
+  } catch (e) { thinking.textContent = 'Sorry, the model gave an error: ' + e.message; }
+}
+document.getElementById('form').addEventListener('submit', async (e)=>{ e.preventDefault(); const text=input.value.trim(); if(!text||!generator) return; add(text,'user'); input.value=''; sendBtn.disabled=true; await ask(text); sendBtn.disabled=false; input.focus(); });
+document.querySelectorAll('.chip').forEach(b=>b.addEventListener('click', ()=>{ input.value=b.textContent; input.focus(); }));
+</script>
+</body>
+</html>
