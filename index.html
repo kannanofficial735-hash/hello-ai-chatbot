@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="Hello AI — a beautiful, fast AI chatbot. Ask anything. Built-in answers when offline, full AI when connected to the backend.">
+<meta name="description" content="Hello AI — a beautiful, fast AI chatbot. Ask anything — live AI answers, direct from the backend.">
 <meta name="theme-color" content="#052430">
 <title>Hello AI — Ask Anything 🚀💎</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -148,12 +148,11 @@ footer b{color:var(--text-dim)}
 <div class="grain" aria-hidden="true"></div>
 <div class="app">
 <header><div class="logo" aria-hidden="true">🤖</div><div class="title"><h1>Hello <span>AI</span></h1><p>Ask anything — fast, friendly &amp; free</p></div><div class="header-actions"><button class="icon-btn" id="clearBtn" type="button" title="Clear chat" aria-label="Clear chat">🧹</button><button class="icon-btn" id="themeBtn" type="button" title="Switch dark / light mode" aria-label="Switch dark or light mode">🌚</button></div></header>
-<div class="status-bar" role="status" aria-live="polite"><span class="pill" id="statusPill"><span class="dot amber" id="statusDot"></span><span id="statusText">Checking backend…</span></span><span class="pill" id="modePill">💎 <span id="modeText">Built-in answers</span></span></div>
-<div class="notice" id="backendNotice" role="note"><span class="ico">🔥</span><div><b>Running on built-in answers right now.</b><br>No backend is connected yet, so I answer from built-in knowledge on this page. For full AI answers on complex questions, connect the backend by setting <code>window.CLOUD_RUN_URL</code> in this file to your Cloud Run URL — then I’ll use the live AI model instead. Nothing is broken; this is the offline-friendly mode.</div></div>
-<main class="chat" id="chat" aria-live="polite" aria-label="Chat messages"><div class="empty" id="emptyState"><div class="big">🤖🚀</div><h2>Hello, Aadidev! What shall we explore?</h2><p>Try a simple hello — or a complex question about AI, coding, science, history or anything else. If the backend is connected you get live AI answers; otherwise you get clear built-in answers instantly, with no waiting.</p></div></main>
+<div class="status-bar" role="status" aria-live="polite"><span class="pill" id="statusPill"><span class="dot amber" id="statusDot"></span><span id="statusText">Checking backend…</span></span><span class="pill" id="modePill">💎 <span id="modeText">Live AI</span></span></div>
+<main class="chat" id="chat" aria-live="polite" aria-label="Chat messages"><div class="empty" id="emptyState"><div class="big">🤖🚀</div><h2>Hello, Aadidev! What shall we explore?</h2><p>Try a simple hello — or a complex question about AI, coding, science, history or anything else. Answers come live from the AI backend.</p></div></main>
 <div class="chips" id="chips"><button class="chip" type="button">🚀 Hello!</button><button class="chip" type="button">🧠 What is AI?</button><button class="chip" type="button">🐍 Explain Python in simple words</button><button class="chip" type="button">🪐 What is a black hole?</button><button class="chip" type="button">🎶 Tell me about music &amp; peace</button></div>
 <form class="composer" id="composer"><label for="messageInput" class="sr-only" style="position:absolute;left:-9999px">Type your message</label><textarea id="messageInput" rows="1" placeholder="Type a message… try a hard question!" autocomplete="off"></textarea><button id="sendBtn" type="submit" title="Send" aria-label="Send message">➤</button></form>
-<footer><b>Hello AI</b> • Built-in answers work offline • Full AI needs the backend connected<br>Static site — no sign-in, no tracking. Made for Aadidev 🚀💎</footer>
+<footer><b>Hello AI</b> • Live AI only • Answers come live from the backend<br>Static site — no sign-in, no tracking. Made for Aadidev 🚀💎</footer>
 </div>
 <script>
 window.CLOUD_RUN_URL = "https://precision-clause-outthink.ngrok-free.dev";
@@ -164,7 +163,6 @@ const sendBtn = document.getElementById('sendBtn');
 const statusDot = document.getElementById('statusDot');
 const statusText = document.getElementById('statusText');
 const modeText = document.getElementById('modeText');
-const backendNotice = document.getElementById('backendNotice');
 const themeBtn = document.getElementById('themeBtn');
 const savedTheme = localStorage.getItem('hello-ai-theme');
 if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
@@ -187,10 +185,10 @@ if (mode) modeText.textContent = mode;
 }
 function refreshStatus(){
 const url = (window.CLOUD_RUN_URL || '').trim();
-if (!url){ backendNotice.classList.remove('hidden'); setStatus('warn', 'Built-in answers • Backend not connected', 'Built-in answers'); }
-else { backendNotice.classList.add('hidden'); setStatus('ok', 'Backend connected • Live AI ready', 'Live AI'); }
+if (!url){ setStatus('warn', 'Live AI not connected • Set the backend URL', 'Live AI'); }
+else { setStatus('ok', 'Backend connected • Live AI ready', 'Live AI'); }
 }
-async function checkBackend(){const u=(window.CLOUD_RUN_URL||'').trim();if(!u){backendNotice.classList.remove('hidden');setStatus('warn','Built-in answers • Backend not connected','Built-in answers');return;}setStatus('warn','Checking backend...','Built-in answers');try{const r=await fetch(u.replace(/\/$/,'')+'/health',{cache:'no-store',headers:{'ngrok-skip-browser-warning':'true'}});const d=await r.json();if(!r.ok||!d||d.status!=='ok')throw new Error('Backend unhealthy');backendNotice.classList.add('hidden');setStatus('ok','Backend connected • Live AI ready','Live AI');}catch(e){backendNotice.classList.remove('hidden');setStatus('error','Backend offline • Built-in answers','Built-in answers');}} checkBackend(); setInterval(checkBackend,60000);
+async function checkBackend(){const u=(window.CLOUD_RUN_URL||'').trim();if(!u){setStatus('warn','Live AI not connected • Set the backend URL','Live AI');return;}setStatus('warn','Checking backend...','Live AI');try{const r=await fetch(u.replace(/\/$/,'')+'/health',{cache:'no-store',headers:{'ngrok-skip-browser-warning':'true'}});const d=await r.json();if(!r.ok||!d||d.status!=='ok')throw new Error('Backend unhealthy');setStatus('ok','Backend connected • Live AI ready','Live AI');}catch(e){setStatus('error','Backend offline • Live AI is starting','Live AI');}} checkBackend(); setInterval(checkBackend,60000);
 function hideEmpty(){ if (emptyState) emptyState.style.display = 'none'; }
 function scrollDown(){ chat.scrollTop = chat.scrollHeight; window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'}); }
 function addMessage(text, who, opts = {}){
@@ -217,83 +215,6 @@ typingEl.innerHTML = '<div class="avatar">🤖</div><div class="bubble typing" a
 chat.appendChild(typingEl); scrollDown();
 }
 function hideTyping(){ if (typingEl){ typingEl.remove(); typingEl = null; } }
-const KB = [
-{ k:['hello','hi','hey','vanakkam','namaste','hai'], a:`Hello, Aadidev! 🚀 Great to see you.
-
-I'm Hello AI. Ask me anything — a simple hello, or a complex question about AI, coding, science, music or life. If the backend is connected I'll answer with the live AI model; right now I'm answering from built-in knowledge, instantly.` },
-{ k:['who are you','your name','about yourself','what are you'], a:`I'm Hello AI — a friendly chatbot made for you, Aadidev. 🤖💎
-
-I can chat, explain things in simple words, help with ideas for your songs, videos and AI projects, and answer questions. When the Cloud Run backend is connected I use the full AI model (Qwen). Without it, I use the built-in answers on this page so you never get silence.` },
-{ k:['what is ai','artificial intelligence','explain ai'], a:`AI — Artificial Intelligence — means teaching computers to do things that normally need human thinking: understanding language, recognising pictures, making decisions and creating new things.
-
-• Machine Learning: the computer learns patterns from examples, instead of following only fixed rules.
-• Deep Learning: a kind of ML using many-layered "neural networks", inspired by the brain.
-• Generative AI: AI that creates — text, images, music, video. Examples: ChatGPT, Gemini, Kling, LTX-2, Wan.
-
-Your dream — long-form 20–30 minute cinematic video generation — is exactly where generative AI is heading.` },
-{ k:['python'], a:`Python in simple words 🐍
-
-Python is a programming language that reads almost like English, so it's one of the best first languages to learn.
-
-Example:
-  print("Hello, Aadidev!")
-
-• Easy to read, huge community, tons of free libraries
-• Used for AI, websites, apps, automation and data
-• Try it free in Google Colab — no install needed
-
-Want a tiny first project? Ask me: "Give me a Python hello project".` },
-{ k:['black hole','blackhole'], a:`A black hole is a place in space where gravity is so strong that not even light can escape. 🌌
-
-• It forms when a very massive star collapses at the end of its life.
-• The "event horizon" is the point of no return — cross it and nothing comes back.
-• We can't see a black hole directly, but we can see stars orbiting it and light bending around it.
-• The first photo of a black hole (M87*) was taken in 2019.` },
-{ k:['music','peace','song','elyswave','echoes of the mountains'], a:`Music and peace go beautifully together. 🎵
-
-Slow, gentle melodies, nature sounds and a calm voice help the mind slow down — that's why your song "Echoes of the Mountains" works: mountains, mist and a peaceful voice make people feel calm.
-
-Tip for your channel ELYSWAVE MUSIC: keep the visuals slow and steady — one beautiful mountain scene at a time, no fast cuts — and let the song breathe.` },
-{ k:['how to build an ai','build an ai','make an ai','create ai'], a:`How to build an AI — the short roadmap:
-
-1. Pick one small job: e.g. a chatbot that replies "hello".
-2. Pick a ready-made model (like Qwen or FLAN-T5) — you don't train from zero.
-3. Test it in Google Colab (free) with Python.
-4. Make a simple web page that sends your message to the model and shows its reply.
-5. Put the model on a backend (Cloud Run) and the page on Netlify.
-
-That's exactly how this Hello AI site is built — page here, model on the backend.` },
-{ k:['trading','stock'], a:`Trading — start slow and safe:
-
-• First learn, don't rush in with real money. Paper-trade (practice with fake money) first.
-• Never invest money you need for daily life.
-• Learn the basics: what a stock is, risk, diversification (don't put everything in one place).
-• Be careful of anyone promising guaranteed returns — there are none.
-
-Want a step-by-step beginner guide? Ask me for it and I'll lay it out lesson by lesson.` },
-{ k:['thank'], a:`You're very welcome! 😎 Anything else you'd like to explore?` },
-{ k:['bye','goodbye','good night'], a:`Goodbye, Aadidev! 👋🌈 Come back anytime — I'll be here. Take care and keep creating. ✨` },
-{ k:['how are you'], a:`I'm doing great — running smoothly and ready to chat! 😊 How are you today?` },
-{ k:['what can you do','help','what do you do'], a:`I can:
-• Chat and answer questions in simple words
-• Explain AI, coding, science, music and more
-• Help with ideas for songs, videos and your AI projects
-• Give step-by-step guides (trading, building an AI, Python)
-
-Try asking a complex question — if the backend is connected you'll get a live AI answer; otherwise I'll do my best from built-in knowledge.` },
-];
-function builtInAnswer(q){
-const s = q.toLowerCase();
-for (const item of KB){ if (item.k.some(k => s.includes(k))) return item.a; }
-return `Good question! Here's what I can share from built-in knowledge:
-
-"${q}" is an interesting topic. Without the live backend connected I can't give a deep, model-generated answer to every complex question — but I can help you explore it:
-
-• Tell me a little more — e.g. "Explain it simply" or "Give me an example" — and I'll answer from built-in knowledge.
-• Or connect the backend (set window.CLOUD_RUN_URL) and I'll answer with the full AI model.
-
-What part of this would you like first — a simple explanation, an example, or steps to learn more?`;
-}
 async function callBackend(message){
 const base = (window.CLOUD_RUN_URL || '').trim().replace(/\/+$/, '');
 const url = base + '/api/chat';
@@ -320,17 +241,13 @@ hideTyping();
 setStatus('ok', 'Backend connected • Live AI ready', 'Live AI');
 addMessage(reply, 'ai', { source: 'Live AI • Cloud Run' });
 } else {
-await new Promise(r => setTimeout(r, 450));
 hideTyping();
-addMessage(builtInAnswer(message), 'ai', { source: 'Built-in answer • Connect backend for full AI' });
+addMessage('Backend offline — Live AI is starting, please wait a moment and try again.', 'ai', { source: 'Backend offline', error: true });
 }
 } catch (err){
 hideTyping();
-setStatus('error', 'Backend error — showing built-in answer', 'Built-in answers');
-addMessage(`⚠️ I couldn’t reach the AI backend just now (${err && err.message ? err.message : 'connection failed'}).
-
-Here’s a built-in answer instead — and you can try again in a moment. If this keeps happening, check that the Cloud Run URL in window.CLOUD_RUN_URL is correct and the service is running.`, 'ai', { source: 'Backend error • Built-in fallback', error: true });
-addMessage(builtInAnswer(message), 'ai', { source: 'Built-in answer • Fallback' });
+setStatus('error', 'Backend offline — Live AI is starting', 'Live AI');
+addMessage('Backend offline — Live AI is starting, please wait a moment and try again.', 'ai', { source: 'Backend offline', error: true });
 } finally { sendBtn.disabled = false; input.focus(); }
 }
 function send(){
@@ -355,9 +272,7 @@ send();
 document.getElementById('clearBtn').addEventListener('click', () => { chat.querySelectorAll('.msg').forEach(n => n.remove()); emptyState.style.display = ''; input.focus(); });
 if (!sessionStorage.getItem('hello-ai-welcomed')){
 sessionStorage.setItem('hello-ai-welcomed', '1');
-setTimeout(() => { addMessage(`Hello, Aadidev! 🤖🚀 I\'m Hello AI.
-
-Ask me anything — even a complex question. Right now I\'m on built-in answers, so I reply instantly. Connect the backend and I\'ll switch to the full live AI model automatically.`, 'ai', { source: (window.CLOUD_RUN_URL || '').trim() ? 'Live AI • Cloud Run' : 'Built-in answer' }); }, 500);
+setTimeout(() => { addMessage('Hello, Aadidev! 🤖🚀 I\'m Hello AI.\n\nAsk me anything — even a complex question. I answer live from the AI backend.', 'ai', { source: 'Live AI • Cloud Run' }); }, 500);
 }
 input.focus();
 </script>
