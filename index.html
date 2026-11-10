@@ -368,7 +368,7 @@ async function callBackend(message){
   const base = (window.CLOUD_RUN_URL || '').trim().replace(/\/+$/, '');
   const url = base + '/api/chat';
   const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 120000);
+  const timer = setTimeout(() => ctrl.abort(), 240000);
   try {
     const res = await fetch(url, {
       method: 'POST',
