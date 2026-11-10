@@ -327,7 +327,7 @@ addMessage(builtInAnswer(message), 'ai', { source: 'Built-in answer • Connect 
 } catch (err){
 hideTyping();
 setStatus('error', 'Backend error — showing built-in answer', 'Built-in answers');
-addMessage(`⚠️ I couldn’t reach the AI backend just now (' + (err && err.message ? err.message : 'connection failed') + ').
+addMessage(`⚠️ I couldn’t reach the AI backend just now (${err && err.message ? err.message : 'connection failed'}).
 
 Here’s a built-in answer instead — and you can try again in a moment. If this keeps happening, check that the Cloud Run URL in window.CLOUD_RUN_URL is correct and the service is running.`, 'ai', { source: 'Backend error • Built-in fallback', error: true });
 addMessage(builtInAnswer(message), 'ai', { source: 'Built-in answer • Fallback' });
