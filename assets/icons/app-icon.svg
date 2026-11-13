@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="Hello AI app icon">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0B1220"/>
+      <stop offset=".45" stop-color="#0F2A43"/>
+      <stop offset=".78" stop-color="#0E7490"/>
+      <stop offset="1" stop-color="#0D9488"/>
+    </linearGradient>
+    <linearGradient id="glassTint" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".22"/>
+      <stop offset=".5" stop-color="#FFFFFF" stop-opacity=".07"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity=".03"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity=".55"/>
+      <stop offset=".5" stop-color="#FFFFFF" stop-opacity=".12"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity=".32"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FDE68A"/>
+      <stop offset=".55" stop-color="#FBBF24"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background squircle: navy -> teal diagonal (v1.1 APK icon gradient) -->
+  <rect width="1024" height="1024" rx="232" fill="url(#bg)"/>
+
+  <!-- Layered glass panel -->
+  <rect x="88" y="88" width="848" height="848" rx="216" fill="url(#glassTint)" stroke="url(#rim)" stroke-width="3"/>
+  <!-- Specular highlight: brightest at the top, faint bounce lower-right -->
+  <ellipse cx="512" cy="176" rx="330" ry="58" fill="#FFFFFF" opacity=".22"/>
+  <ellipse cx="800" cy="852" rx="150" ry="34" fill="#FFFFFF" opacity=".08"/>
+
+  <!-- Chat bubble (white, ~55% of canvas incl. tail) -->
+  <path d="M380 300h264a88 88 0 0 1 88 88v142a88 88 0 0 1-88 88H512l-132 96v-96h-88a88 88 0 0 1-88-88V388a88 88 0 0 1 88-88Z" fill="#FFFFFF"/>
+
+  <!-- Neural-network nodes + links inside the bubble -->
+  <g stroke="#0E7490" stroke-width="7" opacity=".45">
+    <path d="M412 428 512 388 612 428"/>
+    <path d="M412 428 452 512M612 428 572 512M512 388v124"/>
+    <path d="M452 512h120"/>
+  </g>
+  <g>
+    <circle cx="412" cy="428" r="17" fill="#0D9488"/>
+    <circle cx="512" cy="388" r="17" fill="#F59E0B"/>
+    <circle cx="612" cy="428" r="17" fill="#0D9488"/>
+    <circle cx="452" cy="512" r="17" fill="#0E7490"/>
+    <circle cx="572" cy="512" r="17" fill="#0D9488"/>
+  </g>
+
+  <!-- Amber-gold sparkle, upper-right of the bubble -->
+  <path d="M712 196c7 44 22 59 66 66-44 7-59 22-66 66-7-44-22-59-66-66 44-7 59-22 66-66Z" fill="url(#gold)"/>
+  <path d="M300 236c4 22 11 29 33 33-22 4-29 11-33 33-4-22-11-29-33-33 22-4 29-11 33-33Z" fill="#FBBF24" opacity=".9"/>
+
+  <!-- Neural dots continuing below the bubble, on the gradient -->
+  <g stroke="#FFFFFF" stroke-width="4" opacity=".35">
+    <path d="M380 812 512 852 644 812"/>
+  </g>
+  <g fill="#FFFFFF">
+    <circle cx="380" cy="812" r="11" opacity=".6"/>
+    <circle cx="512" cy="852" r="11" opacity=".75"/>
+    <circle cx="644" cy="812" r="11" opacity=".6"/>
+  </g>
+</svg>
