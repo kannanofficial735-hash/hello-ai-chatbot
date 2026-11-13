@@ -1,0 +1,589 @@
+/* ==========================================================================
+   Hello AI — css/chat.css (CHAT CORE)
+   Transcript (SOLID surfaces, NOT glass — PLAN §2.1), glass floating
+   composer pill, thinking orb, streaming caret, jump-to-latest pill,
+   status-pill states. Transform / opacity animations only (the composer
+   height shrink on send is the single documented layout exception,
+   anim-01 §5, 220 ms). No raw hex — semantic tokens only.
+   Reduced motion + reduced transparency respected (see the bottom of
+   this file; base.css also collapses durations globally).
+   ========================================================================== */
+
+/* --- Chat screen layout -------------------------------------------------- */
+#chatScreen { position: relative; }
+
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-card);
+  min-height: var(--header-height);
+  flex: none;
+}
+
+.chat-title {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-title);
+  font-weight: 700;
+  line-height: var(--line-display);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.chat-header .status-pill { flex: none; }
+
+/* --- Transcript: content layer, solid surfaces only. Never add
+       backdrop-filter inside #chatList (PLAN §2.1 / §6.1). --- */
+.chat-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-2) var(--space-4);
+  scroll-margin-bottom: 60px;
+}
+
+.chat-empty {
+  margin: auto;
+  text-align: center;
+  color: var(--on-surface-dim);
+  font-size: var(--text-body);
+  padding: var(--space-6) var(--space-4);
+}
+
+/* --- Bubbles (anim-03) --------------------------------------------------- */
+.msg {
+  max-width: 85%;
+  padding: var(--space-3) 14px;
+  border-radius: var(--radius-card);
+  font-size: var(--text-body);
+  line-height: var(--line-body);
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  position: relative;
+}
+
+.msg__text { min-width: 0; }
+
+/* User: solid teal→blue tint (solid gradient, NOT glass — no backdrop-filter). */
+.msg--user {
+  align-self: flex-end;
+  background: linear-gradient(135deg, var(--ref-teal-700), oklch(0.55 0.12 260));
+  color: var(--ref-white);
+  border-bottom-right-radius: var(--space-1);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.18);
+  transform-origin: 100% 100%;
+  animation: msg-user-in 280ms var(--ease-emphasized) both;
+}
+
+/* AI: solid dark surface + subtle top-edge highlight. */
+.msg--ai {
+  align-self: flex-start;
+  background: var(--bg-solid);
+  color: var(--on-surface);
+  border: 1px solid var(--glass-border-soft);
+  border-bottom-left-radius: var(--space-1);
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.20);
+  transform-origin: 0% 100%;
+  animation: msg-ai-in 400ms var(--ease-emphasized) both;
+}
+
+/* One 400 ms specular sweep across the AI bubble's top edge (anim-03 §2.2):
+   a skewed gradient band moving with transform only — never
+   background-position (anim-02 §1 performance rule). */
+.msg--ai::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent 42%,
+    rgb(255 255 255 / 0.14) 50%, transparent 58%);
+  transform: translateX(-120%);
+  animation: msg-ai-sheen 400ms var(--ease-out) both;
+}
+
+/* Handover (anim-02 §3): the thinking capsule becomes the bubble in place. */
+.msg--handover { animation: msg-handover 280ms var(--ease-emphasized) both; }
+
+/* Same-sender follow-ups: quieter (anim-03 §2.3). */
+.msg--follow {
+  animation-duration: 180ms;
+  animation-name: msg-follow-in;
+  animation-timing-function: var(--ease-out);
+}
+.msg--follow.msg--user { border-top-right-radius: var(--space-1); }
+.msg--follow.msg--ai { border-top-left-radius: var(--space-1); }
+
+/* 4th+ bubble in a burst: opacity-only, 120 ms, no stagger. */
+.msg--burst { animation: msg-burst-in 120ms var(--ease-out) both; }
+
+/* Error / offline bubble: red-tint overlay fades in (anim-02 §7), orb dies
+   out — the bubble itself never shakes. Text is the offline message only. */
+.msg--error {
+  border-color: rgb(255 69 58 / 0.45);
+  background:
+    linear-gradient(rgb(255 69 58 / 0.10), rgb(255 69 58 / 0.10)),
+    var(--bg-solid);
+}
+
+.msg__source {
+  margin-top: var(--space-2);
+  font-size: var(--text-micro);
+  color: var(--on-surface-mute);
+  letter-spacing: 0.02em;
+}
+
+.msg__retry {
+  margin-top: var(--space-2);
+  min-height: var(--touch-target);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--glass-border);
+  background: rgb(255 255 255 / 0.08);
+  color: var(--on-surface);
+  font-weight: 600;
+}
+
+/* --- Message-appear keyframes (anim-03 §4.1; transform/opacity only) --- */
+@keyframes msg-user-in {
+  from { opacity: 0; transform: translate(8px, 12px) scale(0.97); }
+  60%  { opacity: 1; transform: translate(2px, 2px) scale(0.995); }
+  to   { opacity: 1; transform: translate(0, 0) scale(1); }
+}
+@keyframes msg-ai-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes msg-follow-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes msg-burst-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes msg-handover {
+  from { opacity: 0.6; transform: scale(0.98); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes msg-ai-sheen {
+  0%   { transform: translateX(-120%); opacity: 0; }
+  30%  { opacity: 0.5; }
+  100% { transform: translateX(120%); opacity: 0; }
+}
+
+/* --- Thinking capsule (anim-02 §2): breathing liquid orb, NOT dots ------ */
+.thinking {
+  align-self: flex-start;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  max-width: 220px;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  /* Small frosted pill (anim-02's specified exception inside the solid
+     transcript): frost is set once, never animated. */
+  background: rgb(255 255 255 / 0.10);
+  -webkit-backdrop-filter: blur(16px) saturate(var(--frost-saturate));
+  backdrop-filter: blur(16px) saturate(var(--frost-saturate));
+  border: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35);
+  transform-origin: 0% 100%;
+  animation: thinking-in 350ms var(--ease-emphasized) both;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes thinking-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.thinking__glow {
+  position: absolute;
+  inset: -40%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(45 212 191 / 0.25), transparent 65%);
+  pointer-events: none;
+  animation: thinking-glow 2400ms var(--ease-in-out) infinite;
+}
+
+@keyframes thinking-glow {
+  0%, 100% { transform: scale(1.10); opacity: 0.25; }
+  50%      { transform: scale(0.96); opacity: 0.12; }
+}
+
+/* Orb: 28 px aurora gradient. .thinking-orb (animations.css) supplies the
+   2400 ms breathe; escalation slows it via animation-duration, applied at
+   a loop boundary by chat.js (never mid-breath). */
+.thinking__orb {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 28%, rgb(251 191 36 / 0.9) 0%, transparent 42%),
+    conic-gradient(from 0deg, var(--ref-teal-500), var(--ref-violet-500),
+      var(--ref-gold-500), var(--ref-teal-500));
+  box-shadow:
+    0 0 12px rgb(45 212 191 / 0.45),
+    inset 0 1px 2px rgb(255 255 255 / 0.55),
+    inset 0 -2px 4px rgb(0 0 0 / 0.25);
+}
+
+/* The label itself never bounces and never changes case/position during
+   0–10 s (anim-02 §2). The shimmer sweep is deliberately NOT implemented
+   as a background-position animation (anim-02 §1 forbids animating
+   background-position per frame); the orb + glow carry the ambient
+   motion, and the label stays plain solid text. */
+.thinking__label {
+  font-size: var(--text-body);
+  color: var(--on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity 120ms var(--ease-out);
+  position: relative;
+}
+.thinking__label--out { opacity: 0; }
+
+/* Deep-wait frost (anim-02 §6, 30 s+): slightly deeper glass, opacity only. */
+.thinking--deep {
+  background: rgb(255 255 255 / 0.14);
+  transition: background-color 480ms var(--ease-out);
+}
+
+/* --- Cancel (anim-02 §6): fades in at 30 s, never before. --------------- */
+.chat-cancel {
+  flex: none;
+  min-height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--glass-border);
+  background: rgb(255 255 255 / 0.08);
+  color: var(--on-surface-dim);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 200ms var(--ease-out), visibility 200ms;
+}
+.chat-cancel.is-visible { opacity: 1; visibility: visible; }
+
+/* --- Streaming words + caret (anim-02 §4) -------------------------------- */
+.stream-word {
+  display: inline;
+  animation: word-in 160ms var(--ease-out) both;
+}
+@keyframes word-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Caret: 2 px wide, 1.1 em tall, teal, soft opacity pulse (1060 ms). */
+.stream-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1.1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  border-radius: 1px;
+  background: var(--ref-cyan-400);
+  box-shadow: 0 0 6px rgb(34 211 238 / 0.7);
+  animation: stream-caret 1060ms var(--ease-in-out) infinite;
+}
+@keyframes stream-caret {
+  0%, 45%   { opacity: 1; }
+  55%, 100% { opacity: 0.25; }
+}
+
+/* --- Jump to latest pill (anim-03 §2.5) ---------------------------------- */
+.jump-latest {
+  position: absolute;
+  left: 50%;
+  bottom: 108px;
+  transform: translateX(-50%);
+  z-index: var(--z-header);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-pill);
+  background: rgb(255 255 255 / 0.14);
+  -webkit-backdrop-filter: blur(12px) saturate(var(--frost-saturate));
+  backdrop-filter: blur(12px) saturate(var(--frost-saturate));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  color: var(--on-surface);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.jump-latest.is-entering { animation: pill-pop-in 220ms var(--ease-spring) both; }
+.jump-latest.is-exiting { animation: pill-out 120ms var(--ease-in) both; }
+@keyframes pill-pop-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.92); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+}
+@keyframes pill-out {
+  from { opacity: 1; transform: translateX(-50%) translateY(0); }
+  to   { opacity: 0; transform: translateX(-50%) translateY(4px); }
+}
+
+/* --- Composer: glass floating pill (functional layer, PLAN §2.1) ---------- */
+.composer {
+  flex: none;
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-radius: 28px;
+  background: rgb(255 255 255 / var(--frost-light-alpha));
+  -webkit-backdrop-filter: blur(var(--frost-light-blur)) saturate(var(--frost-saturate));
+  backdrop-filter: blur(var(--frost-light-blur)) saturate(var(--frost-saturate));
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.composer--moving { transition: transform 450ms var(--ease-drawer); }
+
+#composerMount { width: 100%; }
+#composerMount .composer { width: 100%; }
+
+.composer-input {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--touch-target);
+  max-height: 140px;
+  padding: 10px var(--space-2);
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--on-surface);
+  font-size: var(--text-body);
+  line-height: var(--line-body);
+  resize: none;
+  overflow-y: auto;
+}
+.composer-input::placeholder { color: var(--on-surface-mute); }
+.composer-input:focus::placeholder { opacity: 0.6; }
+
+/* Sole layout exception (anim-01 §5): height animates 220 ms on send only,
+   while .is-animating-height is present. Never on keystrokes. */
+.composer-input.is-animating-height {
+  transition: height 220ms var(--ease-drawer);
+}
+
+.composer-plus {
+  flex: none;
+  align-self: flex-end;
+}
+/* Home has no [+] — the chat composer hides it while docked on home. */
+.composer--home .composer-plus { display: none; }
+
+.composer-mic {
+  flex: none;
+  align-self: flex-end;
+  color: var(--on-surface);
+}
+.composer-mic.voice-mic--listening {
+  color: var(--accent-gold);
+  border-color: rgb(251 191 36 / 0.6);
+}
+
+/* Send: the one loud element (teal→blue gradient). Appears only when the
+   field has text (Gemini/Claude pattern, PLAN §6.1); the mic occupies the
+   same slot while the field is empty. */
+.composer-send {
+  flex: none;
+  align-self: flex-end;
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border-radius: var(--radius-circle);
+  display: grid;
+  place-items: center;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 4px 16px rgb(20 184 166 / 0.35);
+  transition: transform var(--anim-fast) var(--ease-out),
+    opacity var(--anim-base) var(--ease-ios),
+    box-shadow var(--anim-fast) var(--ease-out);
+}
+.composer:not(.has-text) .composer-send { display: none; }
+.composer.has-text .composer-mic { display: none; }
+
+.composer-send:active { transform: scale(0.94); }
+.composer-send__icon { font-size: 18px; line-height: 1; }
+.composer-send__spinner { display: none; }
+
+/* Sending: arrow crossfades/scales out, spinner scales in (anim-08 §1). */
+.composer-send.is-sending { pointer-events: none; }
+.composer-send.is-sending .composer-send__icon { display: none; }
+.composer-send.is-sending .composer-send__spinner {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgb(255 255 255 / 0.35);
+  border-top-color: #fff;
+  animation: spin 800ms var(--ease-linear) infinite;
+}
+
+/* Disabled while streaming / offline: opacity only, never scale (anim-01 §2).
+   The button is never `disabled` any more (QA req #5 — a disabled button
+   cannot be tapped, so an offline tap gave no feedback); aria-disabled +
+   .is-disabled carry the same look so it stays visibly disabled. */
+.composer-send:disabled,
+.composer-send[aria-disabled="true"] { opacity: 0.45; }
+.composer.is-offline .composer-input::placeholder { color: var(--on-surface-mute); }
+
+/* Wake pop on the disabled→enabled edge (anim-08 §1): one pop, not per
+   keystroke. No fill mode — a `both` fill would keep overriding the
+   :active press scale after the pop finishes. */
+.composer.has-text .composer-send { animation: send-wake 200ms var(--ease-spring); }
+@keyframes send-wake {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+/* --- Send ghost (anim-01 §3): JS-created, fixed, aria-hidden. ------------ */
+.send-ghost {
+  position: fixed;
+  z-index: var(--z-toast);
+  pointer-events: none;
+  padding: 10px 14px;
+  border-radius: var(--radius-card);
+  background: linear-gradient(135deg, var(--ref-teal-700), oklch(0.55 0.12 260));
+  color: var(--ref-white);
+  font-size: var(--text-body);
+  line-height: var(--line-body);
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.18);
+}
+
+/* --- Chips (anim-03 §2.7): cascade after the greeting, max 4. ------------ */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: center;
+}
+.chips .chip {
+  animation: chip-in 320ms var(--ease-emphasized) both;
+  animation-delay: calc(min(var(--i, 0), 3) * 50ms);
+}
+@keyframes chip-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Status pill states (anim-02 §5 / anim-08 §3) ------------------------ */
+/* NOTE: no other module defines the pill/dot base geometry (foundation
+   only names the classes), so chat.css owns it — chat.js owns the pill's
+   behaviour. Colour is never the only signal: dot + label change together. */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--glass-border-soft);
+  background: rgb(255 255 255 / 0.08);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--on-surface);
+  white-space: nowrap;
+}
+.status-pill .dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.status-pill .dot.green { background: var(--success); box-shadow: 0 0 8px rgb(52 199 89 / 0.7); }
+.status-pill .dot.amber { background: var(--warning); box-shadow: 0 0 8px rgb(251 191 36 / 0.7); }
+.status-pill .dot.red { background: var(--danger); box-shadow: 0 0 8px rgb(248 113 113 / 0.7); }
+.status-pill [data-status-text] { transition: opacity 120ms var(--ease-out); }
+.status-pill .pill-label--out { opacity: 0; }
+.status-pill .pill-label--in { opacity: 1; }
+
+/* Dot colours: green = live/done, amber = thinking/checking, teal =
+   generating, red = offline/error. The base .dot pulse lives in
+   animations.css; generating pulses faster (1400 ms), thinking breathes
+   with the orb (2400 ms). */
+.status-pill .dot.teal {
+  background: var(--ref-teal-500);
+  box-shadow: 0 0 8px rgb(45 212 191 / 0.8);
+  animation-duration: 1400ms;
+}
+.status-pill .dot.amber { animation-duration: 2400ms; }
+.status-pill .dot.green { animation-duration: 1600ms; }
+.status-pill .dot.red { animation: none; opacity: 0.85; }
+
+/* Done check: the dot becomes a tiny green check (160 ms pop, anim-02 §5). */
+.status-pill .dot--check {
+  display: inline-grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  font-size: 10px;
+  line-height: 1;
+  color: #052e16;
+  animation: check-pop 160ms var(--ease-emphasized) both;
+}
+@keyframes check-pop {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* --- Voice disclosure (kept visible near the mic, PLAN §6.3) ------------- */
+.voice-disclosure {
+  flex: none;
+  text-align: center;
+  font-size: var(--text-micro);
+  color: var(--on-surface-mute);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* --- Reduced transparency: solid panels, orb keeps its gradient (content,
+       not frost — anim-02 §9). -------------------------------------------- */
+@media (prefers-reduced-transparency: reduce) {
+  .composer, .jump-latest, .thinking {
+    background: #1a1a2e;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .thinking__glow { display: none; }
+}
+
+/* --- Reduced motion: state changes only, no loops, no travel ------------- */
+@media (prefers-reduced-motion: reduce) {
+  .msg--user, .msg--ai, .msg--follow, .msg--burst, .msg--handover,
+  .thinking, .jump-latest, .chips .chip {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .msg--ai::after { display: none; }
+  .thinking__orb, .thinking__glow, .stream-caret,
+  .status-pill .dot { animation: none !important; }
+  .stream-caret { opacity: 1 !important; }
+  .stream-word { animation: none !important; opacity: 1 !important; }
+  .composer--moving { transition: none !important; }
+  .chat-list { scroll-behavior: auto !important; }
+}
+
+/* --- Desktop: wider centred chat column (PLAN §3.3) ----------------------- */
+@media (min-width: 768px) {
+  .chat-list { max-width: var(--content-max); margin: 0 auto; width: 100%; }
+  .composer { max-width: var(--content-max); margin: 0 auto; width: 100%; }
+  .msg { max-width: 75%; }
+}

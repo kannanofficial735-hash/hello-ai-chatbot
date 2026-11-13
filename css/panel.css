@@ -1,0 +1,301 @@
+/* ==========================================================================
+   Hello AI — panel.css
+   Curved bottom panel + account sheet + studio grid (PLAN §8, §9.4;
+   anim-07 §5.5, §5.6, §7).
+
+   - Curved panel: 28–32 px top radius, fully formed from frame 0 (the
+     curve never morphs mid-flight — the whole panel translates as one
+     layer). Floating above the home indicator via safe-area insets.
+   - Slide up 500 ms in / 350 ms out, scrim 0 → 0.4 (300 ms), swipe-down
+     dismiss following the finger (panel.js drives transform/opacity).
+   - Glass on chrome only; transform / opacity only; reduced motion and
+     reduced transparency respected.
+   ========================================================================== */
+
+/* --- Scrim: separate fixed layer; aurora underneath is untouched --- */
+.panel-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: calc(var(--z-panel) - 1);
+  background: rgb(0 0 0 / 1);
+  opacity: 0;
+  transition: opacity 300ms var(--ease-ios, cubic-bezier(0.25, 0.1, 0.25, 1));
+  pointer-events: auto;
+}
+
+.panel-scrim[hidden] { display: none; }
+.panel-scrim--visible { opacity: 0.4; }
+
+/* --- Curved bottom panel --- */
+#bottomPanel {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: var(--z-panel);
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  /* Curve: 28–32 px top radius, baked in from frame 0. */
+  border-radius: 30px 30px 0 0;
+  border-bottom: 0;
+  /* Heavy frost for the panel (PLAN §5.6: blur 24–40 px). */
+  background:
+    linear-gradient(180deg, rgb(4 18 31 / 0.28), rgb(4 18 31 / 0.18)),
+    rgb(255 255 255 / var(--frost-heavy-alpha));
+  -webkit-backdrop-filter: blur(28px) saturate(var(--frost-saturate));
+  backdrop-filter: blur(28px) saturate(var(--frost-saturate));
+  border: 1px solid var(--glass-border);
+  border-top-color: var(--glass-border-bright);
+  box-shadow: var(--glass-shadow-lg);
+  padding: var(--space-2) var(--space-4)
+    calc(var(--space-4) + env(safe-area-inset-bottom));
+  padding-left: max(var(--space-4), env(safe-area-inset-left));
+  padding-right: max(var(--space-4), env(safe-area-inset-right));
+  /* Float above the home indicator: the panel's bottom padding carries
+     the safe-area inset, so content never sits under the indicator. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  /* Entrance: slide up 500 ms (anim-07 §5.6). Runs whenever the panel
+     is unhidden — including the foundation direct-open path (avatar
+     tap), not only panel.js's animated open. */
+  will-change: transform, opacity;
+}
+
+#bottomPanel[hidden] { display: none; }
+
+#bottomPanel:not([hidden]) {
+  animation: panel-sheet-in 500ms var(--ease-drawer, cubic-bezier(0.32, 0.72, 0, 1)) both;
+}
+
+@keyframes panel-sheet-in {
+  from { transform: translateY(100%) scale(0.98); opacity: 0.6; }
+  to { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Exit: 350 ms (anim-07 §5.6). Higher specificity than the entrance
+   rule so the closing animation wins while the panel is still shown. */
+#bottomPanel.bottom-panel--closing {
+  animation: panel-sheet-out 350ms var(--ease-in, cubic-bezier(0.3, 0, 1, 1)) both;
+}
+
+@keyframes panel-sheet-out {
+  from { transform: translateY(0); opacity: 1; }
+  to { transform: translateY(100%); opacity: 0.6; }
+}
+
+/* While the finger drags the panel, the entrance animation must not
+   fight the inline transform panel.js sets each frame. */
+#bottomPanel.bottom-panel--dragging {
+  animation: none !important;
+  transition: none;
+  will-change: transform, opacity;
+}
+
+/* --- Grabber handle + close button --- */
+.panel-handle {
+  width: 40px;
+  height: 5px;
+  margin: 2px auto 0;
+  border-radius: var(--radius-pill);
+  background: rgb(255 255 255 / 0.35);
+  flex: none;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.panel-close {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-3);
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  width: var(--touch-target);
+  height: var(--touch-target);
+  border-radius: var(--radius-circle);
+  display: grid;
+  place-items: center;
+  color: var(--on-surface-dim);
+  background: rgb(255 255 255 / 0.06);
+  font-size: var(--text-body);
+  transition: transform var(--anim-fast, 120ms) var(--ease-out, cubic-bezier(0.2, 0, 0, 1)),
+    background-color var(--anim-fast, 120ms) var(--ease-out, cubic-bezier(0.2, 0, 0, 1));
+}
+
+.panel-close:hover { background: rgb(255 255 255 / 0.12); }
+.panel-close:active { transform: scale(0.96); }
+
+/* --- Account section (top of panel) --- */
+.panel-account {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  padding-top: var(--space-2);
+}
+
+.panel-account .profile-photo,
+.panel-account .profile-photo-fallback {
+  width: 56px;
+  height: 56px;
+  flex: none;
+  border-radius: var(--radius-circle);
+  object-fit: cover;
+}
+
+.panel-account .profile-photo-fallback {
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  background: rgb(255 255 255 / 0.10);
+  border: 1px solid var(--glass-border-soft);
+}
+
+.panel-account .profile-photo[hidden] { display: none; }
+
+.panel-account .profile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 140px;
+}
+
+.panel-account .profile-name {
+  font-family: var(--font-display);
+  font-size: var(--text-title);
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--on-surface);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: var(--text-shadow-scrim);
+}
+
+.panel-account .profile-email {
+  font-size: var(--text-caption);
+  line-height: var(--line-body);
+  color: var(--on-surface-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: var(--text-shadow-scrim);
+}
+
+.panel-account .profile-model {
+  font-size: var(--text-caption);
+  line-height: var(--line-body);
+  color: var(--success);
+  text-shadow: var(--text-shadow-scrim);
+}
+
+.panel-signout,
+.panel-manage {
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  transition: transform var(--anim-fast, 120ms) var(--ease-out, cubic-bezier(0.2, 0, 0, 1)),
+    background-color var(--anim-fast, 120ms) var(--ease-out, cubic-bezier(0.2, 0, 0, 1));
+}
+
+.panel-signout {
+  border: 1px solid rgb(248 113 113 / 0.40);
+  background: rgb(248 113 113 / 0.10);
+  color: var(--danger);
+}
+
+.panel-manage {
+  border: 1px solid var(--glass-border);
+  background: rgb(255 255 255 / 0.08);
+  color: var(--on-surface);
+}
+
+.panel-signout:hover { background: rgb(248 113 113 / 0.18); }
+.panel-manage:hover { background: rgb(255 255 255 / 0.14); }
+.panel-signout:active, .panel-manage:active { transform: scale(0.97); }
+
+/* --- Studio grid: 2-row grid of 7 actions (PLAN §8.2) --- */
+.studio-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-2);
+}
+
+.studio-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 76px;
+  min-width: 0;
+  padding: var(--space-3) var(--space-1);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--glass-border-soft);
+  background: rgb(255 255 255 / 0.08);
+  color: var(--on-surface);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  text-shadow: var(--text-shadow-scrim);
+  transition: transform var(--anim-fast, 120ms) var(--ease-out, cubic-bezier(0.2, 0, 0, 1)),
+    background-color var(--anim-fast, 120ms) var(--ease-out, cubic-bezier(0.2, 0, 0, 1));
+}
+
+.studio-btn > :first-child {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.studio-btn span:last-child {
+  overflow-wrap: anywhere;
+}
+
+.studio-btn:hover { background: rgb(255 255 255 / 0.14); }
+.studio-btn:active { transform: scale(0.96); }
+
+/* Toggle state (മലയാളം mode): filled + gold accent, never colour alone —
+   the pressed state is also exposed via aria-pressed (panel.js). */
+.studio-btn--active {
+  background: rgb(251 191 36 / 0.18);
+  border-color: rgb(251 191 36 / 0.55);
+  color: var(--accent-gold);
+}
+
+/* Narrow phones: 7 buttons in 2 rows still fit at 4 columns down to
+   ~340 px; below that, fall back to 3 columns (3 + 3 + 1). */
+@media (max-width: 360px) {
+  .studio-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* --- Fallbacks (PLAN §3.4, §9.5) --- */
+@media (prefers-reduced-transparency: reduce) {
+  #bottomPanel {
+    background: #1a1a2e;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  #bottomPanel { background: rgb(30 30 50 / 0.95); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #bottomPanel, #bottomPanel.bottom-panel--closing,
+  .panel-scrim, .studio-btn, .panel-signout, .panel-manage, .panel-close {
+    animation: none !important;
+    transition: none !important;
+  }
+  #bottomPanel:not([hidden]) { opacity: 1 !important; transform: none !important; }
+  .panel-scrim--visible { opacity: 0.4; }
+  .studio-btn:active, .panel-signout:active, .panel-manage:active, .panel-close:active {
+    transform: none; opacity: 0.7;
+  }
+}

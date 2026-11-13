@@ -1,0 +1,161 @@
+/* ==========================================================================
+   Hello AI — animations.css
+   Shared token set from PLAN §9.3, VERBATIM. Every animation reuses these;
+   no local inventions. Keyframes animate transform / opacity ONLY (GPU).
+   Never animate padding/margin/height/width; never `transition: all`.
+   Premium motion personality, clamped to interactive limits (PLAN §9.1):
+   interactive UI <= 300ms; 350-600ms only for rare, non-interactive moments.
+   ========================================================================== */
+
+/* --- §9.3 shared token set (verbatim) --- */
+:root {
+  --anim-instant: 80ms;
+  --anim-fast: 120ms;
+  --anim-base: 200ms;
+  --anim-standard: 300ms;
+  --anim-slow: 450ms;
+  --anim-ambient: 1600ms;
+  --ease-ios: cubic-bezier(0.25, 0.1, 0.25, 1);           /* signature, 80% of anims */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);          /* drawers/sheets */
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
+  --ease-in: cubic-bezier(0.3, 0, 1, 1);                  /* exits only */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-emphasized: cubic-bezier(0.05, 0.7, 0.1, 1);     /* entrances/attention */
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275); /* pin pop only */
+  --ease-shake: cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  --ease-linear: linear;                                   /* spinners/progress only */
+}
+
+/* --- Aurora ambient drift (transform only; blur radius never animated) --- */
+.blob.b1 { animation: drift 24s ease-in-out infinite alternate; }
+.blob.b2 { animation: drift-alt 26s ease-in-out infinite alternate; animation-delay: -6s; }
+.blob.b3 { animation: drift-alt2 20s ease-in-out infinite alternate; animation-delay: -10s; }
+.blob.b4 { animation: drift-alt 28s ease-in-out infinite alternate; animation-delay: -14s; }
+.blob.b5 { animation: drift 18s ease-in-out infinite alternate; animation-delay: -4s; }
+.aurora { animation: aurora-shift 28s ease-in-out infinite alternate; }
+
+@keyframes drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(48px, -36px) scale(1.1); }
+  100% { transform: translate(-24px, 28px) scale(0.96); }
+}
+@keyframes drift-alt {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(-56px, 32px) scale(1.08); }
+  100% { transform: translate(28px, -24px) scale(0.97); }
+}
+@keyframes drift-alt2 {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(36px, 40px) scale(1.12); }
+  100% { transform: translate(-32px, -28px) scale(0.95); }
+}
+@keyframes aurora-shift {
+  from { filter: hue-rotate(0deg) saturate(1); }
+  to   { filter: hue-rotate(18deg) saturate(1.15); }
+}
+
+/* --- Screen transitions (anim-07): push 350ms, exit 180ms, hero/sheets 500ms --- */
+.screen { transition: opacity var(--anim-standard) var(--ease-ios); }
+.screen.is-entering { animation: screen-enter var(--anim-standard) var(--ease-ios) both; }
+.screen.is-exiting { animation: screen-exit 180ms var(--ease-in) both; }
+@keyframes screen-enter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes screen-exit {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-8px); }
+}
+
+/* --- Greeting load reveal (anim-05): rises 18px + fades over 550ms --- */
+@keyframes greeting-rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.greeting-reveal { animation: greeting-rise 550ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* --- Generic rise-in for shell children (staggered via inline --stagger) --- */
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(16px) scale(0.995); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.rise-in { animation: rise-in 650ms cubic-bezier(0.22, 0.9, 0.3, 1) both; animation-delay: var(--stagger, 0ms); }
+
+/* --- Status pill dot pulse (breathing, opacity + scale only) --- */
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.6; transform: scale(0.82); }
+}
+.dot { animation: dot-pulse 2s var(--ease-in-out) infinite; }
+
+/* --- Specular sweep across the hero (background-position is a paint cost;
+   kept only on the ONE hero element; remove if it janks on the phone) --- */
+@keyframes sheen {
+  0%, 100% { background-position: 120% 0; }
+  50%      { background-position: -40% 0; }
+}
+
+/* --- Error shake (anim-08): 400ms, +/-8 -> +/-5 -> +/-2px --- */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(2px); }
+}
+.shake { animation: shake 400ms var(--ease-shake) both; }
+
+/* --- Toast in/out (anim-08): in 300ms, out 200ms --- */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toast-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(8px); }
+}
+.toast.is-entering { animation: toast-in var(--anim-standard) var(--ease-out) both; }
+.toast.is-exiting  { animation: toast-out var(--anim-base) var(--ease-in) both; }
+
+/* --- Drawer / panel slide (anim-06/07): in 380ms ease-drawer, out 280ms --- */
+@keyframes drawer-in {
+  from { opacity: 0; transform: translateX(-100%); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes drawer-out {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(-100%); }
+}
+@keyframes panel-in {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes panel-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(100%); }
+}
+
+/* --- Thinking orb breathe (anim-02): 2400ms, scale 1 -> 1.08 --- */
+@keyframes orb-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.9; }
+  50%      { transform: scale(1.08); opacity: 1; }
+}
+.thinking-orb { animation: orb-breathe 2400ms var(--ease-in-out) infinite; }
+
+/* --- Spinner (linear only) --- */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { animation: spin 800ms var(--ease-linear) infinite; }
+
+/* --- Press feedback (anim-08): press 120ms to 0.96, release 200ms spring --- */
+.pressable { transition: transform var(--anim-fast) var(--ease-out); }
+.pressable:active { transform: scale(0.96); transition-duration: var(--anim-fast); }
+
+/* --- Reduced motion: durations to 0.01ms, iteration 1, stop refraction churn --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .blob, .aurora { animation: none !important; }
+}

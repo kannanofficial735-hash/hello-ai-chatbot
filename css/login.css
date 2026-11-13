@@ -1,0 +1,228 @@
+/* ==========================================================================
+   Hello AI — login.css
+   Login screen: heavy-frost glass card, logo, GIS button states, error
+   wording, entrance animation (PLAN §4, §9.4; anim-07 §5.7).
+
+   The real "Sign in with Google" button is rendered by GIS into
+   #googleSigninBtn as an iframe — this file styles the CONTAINER only
+   (width, press scale, shimmer overlay, error shake). It never tries to
+   restyle Google's button itself, and never draws a fake Google button.
+   The shimmer overlay has pointer-events: none so it can never block
+   a tap on the real button.
+
+   Motion (anim-07 §5.7): logo settles 600 ms, card rises in, button
+   shimmers once per 2.4 s loop, press scale 0.97, error shake 350 ms
+   ±10 px. Transform / opacity only; blur is never animated.
+   ========================================================================== */
+
+/* --- Login screen layout: centred column over the single aurora layer --- */
+#loginScreen {
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - 32px);
+  padding-top: max(var(--space-4), env(safe-area-inset-top));
+  padding-bottom: max(var(--space-4), env(safe-area-inset-bottom));
+}
+
+#loginScreen .status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* --- Login card: heavy frost (blur 24–40 px), glass recipe §3.4 --- */
+#loginCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 420px;
+  padding: var(--space-8) var(--space-6) var(--space-6);
+  /* Heavy frost: 32 px sits inside the 24–40 px band (tokens.css). */
+  background:
+    linear-gradient(180deg, rgb(4 18 31 / 0.35), rgb(4 18 31 / 0.22)),
+    rgb(255 255 255 / var(--frost-heavy-alpha));
+  -webkit-backdrop-filter: blur(var(--frost-heavy-blur)) saturate(var(--frost-saturate));
+  backdrop-filter: blur(var(--frost-heavy-blur)) saturate(var(--frost-saturate));
+  border: 1px solid var(--glass-border);
+  border-top-color: var(--glass-border-bright);
+  box-shadow: var(--glass-shadow-lg);
+  /* Entrance: card rises in, 350 ms from 150 ms (anim-07 §5.7 C). */
+  animation: login-card-in 350ms var(--ease-enter, cubic-bezier(0.05, 0.7, 0.1, 1)) 150ms both;
+}
+
+@keyframes login-card-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- Logo: settles 600 ms (anim-07 §5.7 B) --- */
+#loginCard .app-logo {
+  width: 96px;
+  height: 96px;
+  animation: login-logo-settle 600ms var(--ease-enter, cubic-bezier(0.05, 0.7, 0.1, 1)) both;
+}
+
+@keyframes login-logo-settle {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+#loginTitle {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  line-height: var(--line-display);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--on-surface);
+  text-shadow: var(--text-shadow-scrim);
+}
+
+.login-promise {
+  font-size: var(--text-body);
+  line-height: var(--line-body);
+  color: var(--on-surface-dim);
+  text-shadow: var(--text-shadow-scrim);
+}
+
+/* --- Google sign-in mount: GIS renders the real button here --- */
+.google-signin {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  min-height: 44px;
+  display: flex;
+  justify-content: center;
+  /* Entrance: button rises in, 300 ms from 300 ms (anim-07 §5.7 D). */
+  animation: login-card-in 300ms var(--ease-enter, cubic-bezier(0.05, 0.7, 0.1, 1)) 300ms both;
+  /* Press: scale 0.97 (anim-07 §5.7 F). Applied to the container so the
+     GIS iframe inside is not restyled — the press still reads. */
+  transition: transform var(--anim-fast, 120ms) var(--ease-out, cubic-bezier(0.2, 0, 0, 1));
+}
+
+.google-signin:active { transform: scale(0.97); }
+
+/* Shimmer: one slow pass every 2.4 s (anim-07 §5.7 E). An ::after layer
+   over the container — pointer-events: none, transform + opacity only.
+   Stops permanently after sign-in: auth.js adds .login-card--signed-in
+   to #loginCard, which hides this layer. */
+.google-signin::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: var(--radius-card);
+  background: linear-gradient(115deg,
+    transparent 30%, rgb(255 255 255 / 0.35) 50%, transparent 70%);
+  background-size: 250% 100%;
+  transform: translateX(-150%);
+  opacity: 0;
+  animation: login-btn-shimmer 2.4s var(--ease-linear, linear) 600ms infinite;
+}
+
+@keyframes login-btn-shimmer {
+  0% { transform: translateX(-150%); opacity: 0; }
+  15% { opacity: 0.35; }
+  45% { transform: translateX(150%); opacity: 0.35; }
+  60%, 100% { transform: translateX(150%); opacity: 0; }
+}
+
+.login-card--signed-in .google-signin::after { display: none; }
+
+/* No Client ID yet: the mount stays empty — no fake button, no spinner.
+   The honest note lives in #loginError below. */
+.google-signin--unavailable { min-height: 0; }
+.google-signin--unavailable::after { display: none; }
+
+/* --- Error wording: exact text + next step, never a generic spinner --- */
+.login-error {
+  width: 100%;
+  font-size: var(--text-caption);
+  line-height: var(--line-body);
+  color: var(--danger);
+  background: rgb(248 113 113 / 0.10);
+  border: 1px solid rgb(248 113 113 / 0.35);
+  border-radius: var(--radius-card);
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  text-shadow: var(--text-shadow-scrim);
+}
+
+.login-error[hidden] { display: none; }
+
+/* Informational note (no Client ID yet): same box, calm colours, no red. */
+.login-error--info {
+  color: var(--on-surface-dim);
+  background: rgb(255 255 255 / 0.06);
+  border-color: var(--glass-border-soft);
+}
+
+/* Error shake: firm 350 ms, ±10 px (anim-07 §5.7 G / PLAN §4.2).
+   The button container shakes; the card itself does not move. */
+.google-signin--error { animation: login-error-shake 350ms var(--ease-shake, cubic-bezier(0.36, 0.07, 0.19, 0.97)) both; }
+
+@keyframes login-error-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-10px); }
+  40% { transform: translateX(10px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(3px); }
+}
+
+.login-card--error { animation: login-error-shake 350ms var(--ease-shake, cubic-bezier(0.36, 0.07, 0.19, 0.97)) both; }
+
+/* --- Honest small print + dev-skip button --- */
+.login-honest {
+  font-size: var(--text-caption);
+  line-height: var(--line-body);
+  color: var(--on-surface-mute);
+  text-shadow: var(--text-shadow-scrim);
+}
+
+.dev-skip-btn {
+  min-height: var(--touch-target);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  border: 1px dashed var(--glass-border);
+  background: rgb(255 255 255 / 0.06);
+  color: var(--on-surface-dim);
+  font-size: var(--text-caption);
+  transition: transform var(--anim-fast, 120ms) var(--ease-out, cubic-bezier(0.2, 0, 0, 1)),
+    background-color var(--anim-fast, 120ms) var(--ease-out, cubic-bezier(0.2, 0, 0, 1));
+}
+
+.dev-skip-btn:hover { background: rgb(255 255 255 / 0.10); }
+.dev-skip-btn:active { transform: scale(0.97); }
+.dev-skip-btn[hidden] { display: none; }
+
+/* --- Fallbacks (PLAN §3.4, §9.5) --- */
+@media (prefers-reduced-transparency: reduce) {
+  #loginCard {
+    background: #1a1a2e;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .google-signin::after { display: none; }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  #loginCard { background: rgb(30 30 50 / 0.92); }
+  .google-signin::after { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #loginCard, #loginCard .app-logo, .google-signin,
+  .google-signin--error, .login-card--error {
+    animation: none !important;
+    transition: none !important;
+  }
+  #loginCard, #loginCard .app-logo, .google-signin { opacity: 1 !important; transform: none !important; }
+  .google-signin::after { display: none; }
+  .google-signin:active { transform: none; opacity: 0.7; }
+}

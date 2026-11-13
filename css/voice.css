@@ -1,0 +1,476 @@
+/* ==========================================================================
+   Voice mic — Hello AI chatbot redesign (PLAN §6.3, §9.4 A4; anim-04)
+   --------------------------------------------------------------------------
+   Mic button states, listening sheet (orb 96px + 5 bars + 3 rings),
+   interim/final transcript styles. Transform / opacity only — no layout,
+   width/height, or backdrop-filter animation. Reduced motion + reduced
+   transparency respected. Tokens come from css/tokens.css and
+   css/animations.css; every var() below carries a fallback so this file
+   also works standalone.
+
+   NOTE — orb refraction: anim-04 specs an SVG feDisplacementMap filter at
+   scale 14 on the orb. That filter def lives in the shell (index.html,
+   foundation-owned) — the header already has its own scale-18 def and the
+   orb must NOT reuse it. Until foundation adds a dedicated scale-14 def,
+   the orb renders as frost + inner glow, which is the documented fallback.
+   Nothing else in this file depends on that filter.
+   ========================================================================== */
+
+/* --- Mic button (composer, #micBtn; class added by js/voice.js) --- */
+.voice-mic,
+#micBtn {
+  position: relative;
+  flex: 0 0 auto;
+  width: var(--touch-target, 44px);
+  height: var(--touch-target, 44px);
+  border-radius: var(--radius-circle, 50%);
+  border: 1px solid var(--glass-border, rgb(255 255 255 / 0.28));
+  background: var(--bg-glass, rgb(255 255 255 / 0.12));
+  -webkit-backdrop-filter: blur(var(--frost-light-blur, 12px)) saturate(var(--frost-saturate, 160%));
+  backdrop-filter: blur(var(--frost-light-blur, 12px)) saturate(var(--frost-saturate, 160%));
+  color: rgb(255 255 255 / 0.85);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  transition: transform 120ms var(--ease-press, cubic-bezier(0.2, 0, 0, 1)),
+    background 150ms var(--ease-ios, cubic-bezier(0.25, 0.1, 0.25, 1)),
+    border-color 150ms var(--ease-ios, cubic-bezier(0.25, 0.1, 0.25, 1)),
+    opacity 150ms var(--ease-ios, cubic-bezier(0.25, 0.1, 0.25, 1));
+}
+
+/* [hidden] must win over display:grid above — mic hidden where unsupported. */
+.voice-mic[hidden],
+#micBtn[hidden] {
+  display: none;
+}
+
+/* Slow specular sweep: the only idle motion (6 s, gradient translate only). */
+.voice-mic::after,
+#micBtn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / 0.08) 50%, transparent 70%);
+  background-size: 250% 100%;
+  animation: voice-sheen 6s linear infinite;
+}
+
+@keyframes voice-sheen {
+  0%, 100% { background-position: 120% 0; }
+  50% { background-position: -40% 0; }
+}
+
+@media (hover: hover) {
+  .voice-mic:hover,
+  #micBtn:hover {
+    transform: translateY(-1px) scale(1.04);
+    background: rgb(255 255 255 / 0.18);
+  }
+}
+
+.voice-mic:active,
+#micBtn:active {
+  transform: scale(0.92);
+}
+
+.voice-mic:focus-visible,
+#micBtn:focus-visible {
+  outline: 2px solid var(--focus-ring, #22d3ee);
+  outline-offset: 2px;
+}
+
+/* Listening: amber-gold is the mic-listening accent (tokens: --accent-gold). */
+.voice-mic--listening {
+  border-color: var(--accent-gold, #fbbf24);
+  color: var(--accent-gold, #fbbf24);
+  box-shadow: 0 0 0 4px rgb(251 191 36 / 0.18), 0 0 16px rgb(251 191 36 / 0.35);
+}
+
+.voice-mic--listening::after {
+  animation: none;
+  opacity: 0;
+}
+
+/* Permission denied: small amber dot badge until the next successful listen. */
+.voice-mic--denied::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--warning, #fbbf24);
+  box-shadow: 0 0 0 2px rgb(4 18 31 / 0.9);
+  z-index: 1;
+}
+
+/* --- Listening sheet: springs from bottom-right, opens 420 ms (< 500 ms) --- */
+.voice-sheet {
+  position: fixed;
+  right: 16px;
+  bottom: calc(var(--composer-height, 76px) + 24px);
+  z-index: 45; /* above the chat + drawer (40), below the bottom panel (50) and toasts (70) */
+  width: min(360px, calc(100vw - 32px));
+  height: 228px; /* fixed: opening never re-lays-out the message list */
+  border-radius: var(--radius-panel, 24px);
+  border: 1px solid var(--glass-border, rgb(255 255 255 / 0.28));
+  background: rgb(255 255 255 / 0.14);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  backdrop-filter: blur(20px) saturate(160%);
+  box-shadow: var(--glass-shadow-lg, 0 20px 50px rgb(0 0 0 / 0.35));
+  transform: translateY(24px) scale(0.96);
+  transform-origin: bottom right;
+  opacity: 0;
+  pointer-events: none;
+  touch-action: pan-y; /* horizontal swipe is ours; vertical scroll still works */
+  transition: transform 420ms var(--ease-emphasized, cubic-bezier(0.05, 0.7, 0.1, 1)),
+    opacity 420ms var(--ease-emphasized, cubic-bezier(0.05, 0.7, 0.1, 1));
+}
+
+.voice-sheet[hidden] {
+  display: none;
+}
+
+.voice-sheet--open {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Close: exits are faster than entrances (300 ms, accelerate). */
+.voice-sheet--closing {
+  transform: translateY(16px) scale(0.94);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 300ms var(--ease-in, cubic-bezier(0.3, 0, 1, 1)),
+    opacity 300ms var(--ease-in, cubic-bezier(0.3, 0, 1, 1));
+}
+
+.voice-sheet__inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  text-align: center;
+}
+
+/* --- Orb (96 px) + rings + bars --- */
+.voice-orb-wrap {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  flex: 0 0 96px;
+  display: grid;
+  place-items: center;
+}
+
+.voice-ring {
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid rgb(255 255 255 / 0.35);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  animation: voice-ring 1800ms linear infinite;
+}
+
+.voice-ring:nth-child(2) { animation-delay: 600ms; }
+.voice-ring:nth-child(3) { animation-delay: 1200ms; }
+
+@keyframes voice-ring {
+  from { transform: scale(0.85); opacity: 0.45; }
+  to { transform: scale(1.45); opacity: 0; }
+}
+
+.voice-orb {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 1px solid rgb(255 255 255 / 0.35);
+  background: rgb(255 255 255 / 0.16);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  backdrop-filter: blur(20px) saturate(180%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.45), inset 0 -1px 0 rgb(0 0 0 / 0.12),
+    0 8px 32px rgb(0 0 0 / 0.25);
+  color: rgb(255 255 255 / 0.9);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  /* Scale is driven by JS level via --mic-orb-scale (transform only);
+     breathing lives on the glow, so :active below can still win. */
+  transform: scale(var(--mic-orb-scale, 1));
+  transition: transform 120ms var(--ease-press, cubic-bezier(0.2, 0, 0, 1));
+  will-change: transform;
+}
+
+.voice-orb:active {
+  transform: scale(0.96);
+}
+
+/* Liquid refraction (anim-04): the dedicated scale-14 filter def
+   (#liquidGlassOrb) lives in index.html. Chromium-only; the plain blur
+   above is the fallback everywhere else. */
+@supports (backdrop-filter: url(#liquidGlassOrb)) {
+  .voice-orb {
+    -webkit-backdrop-filter: url(#liquidGlassOrb) blur(20px) saturate(180%);
+    backdrop-filter: url(#liquidGlassOrb) blur(20px) saturate(180%);
+  }
+}
+
+.voice-orb:focus-visible {
+  outline: 2px solid var(--focus-ring, #22d3ee);
+  outline-offset: 3px;
+}
+
+/* Inner glow: breathing (2400 ms) + level cross-fade via --mic-level. */
+.voice-orb__glow {
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 35%, rgb(94 234 212 / 0.55), transparent 65%),
+    radial-gradient(circle at 50% 65%, rgb(251 191 36 / 0.35), transparent 70%);
+  opacity: 0.55;
+  animation: voice-breathe 2400ms cubic-bezier(0.37, 0, 0.63, 1) infinite;
+}
+
+@keyframes voice-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.04); opacity: 0.75; }
+}
+
+.voice-orb svg {
+  position: relative;
+  z-index: 1;
+}
+
+/* Waveform bars: 5 bars, scaleY only, transform-origin bottom. */
+.voice-bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 6px;
+  height: 28px;
+  will-change: transform;
+}
+
+.voice-bar {
+  width: 6px;
+  height: 28px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.9), rgb(94 234 212 / 0.7));
+  transform-origin: bottom;
+  transform: scaleY(0.3);
+  /* Idle (listening, no voice): gentle sine wave, 900 ms, 120 ms stagger. */
+  animation: voice-bar-idle 900ms cubic-bezier(0.37, 0, 0.63, 1) infinite alternate;
+}
+
+.voice-bar:nth-child(2) { animation-delay: 120ms; }
+.voice-bar:nth-child(3) { animation-delay: 240ms; }
+.voice-bar:nth-child(4) { animation-delay: 360ms; }
+.voice-bar:nth-child(5) { animation-delay: 480ms; }
+
+@keyframes voice-bar-idle {
+  from { transform: scaleY(0.25); }
+  to { transform: scaleY(0.45); }
+}
+
+/* Live level: JS sets inline scaleY per bar, so the idle animation stops. */
+.voice-bars--live .voice-bar {
+  animation: none;
+}
+
+/* --- Status / error / actions / privacy --- */
+.voice-status {
+  margin: 0;
+  font-size: var(--text-caption, 0.8125rem);
+  line-height: 1.4;
+  color: var(--on-surface-dim, #cbd5e1);
+  text-shadow: var(--text-shadow-scrim, 0 1px 2px rgb(0 0 0 / 0.4));
+}
+
+.voice-cancel-hint {
+  margin: 0;
+  font-size: var(--text-caption, 0.8125rem);
+  color: var(--on-surface, #f1f5f9);
+}
+
+.voice-error {
+  margin: 0;
+  font-size: var(--text-caption, 0.8125rem);
+  line-height: 1.5;
+  color: #ffd9a8; /* warm amber-tinted text on dark glass; colour + icon + text, never colour alone */
+}
+
+.voice-error::before {
+  content: "⚠ ";
+}
+
+.voice-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.voice-actions button {
+  min-width: var(--touch-target, 44px);
+  min-height: var(--touch-target, 44px);
+  padding: 0 16px;
+  border-radius: var(--radius-pill, 999px);
+  border: 1px solid var(--glass-border, rgb(255 255 255 / 0.28));
+  background: rgb(255 255 255 / 0.12);
+  color: var(--on-surface, #f1f5f9);
+  font: inherit;
+  font-size: var(--text-caption, 0.8125rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 100ms var(--ease-press, cubic-bezier(0.2, 0, 0, 1)),
+    background 150ms var(--ease-ios, cubic-bezier(0.25, 0.1, 0.25, 1));
+}
+
+.voice-actions button:active {
+  transform: scale(0.92);
+}
+
+.voice-actions button:focus-visible {
+  outline: 2px solid var(--focus-ring, #22d3ee);
+  outline-offset: 2px;
+}
+
+.voice-stop {
+  background: rgb(255 69 58 / 0.85) !important;
+  border-color: rgb(255 255 255 / 0.35) !important;
+  color: #fff !important;
+}
+
+.voice-retry {
+  background: var(--accent, linear-gradient(135deg, #06b6d4, #6366f1)) !important;
+  border-color: transparent !important;
+  color: #fff !important;
+}
+
+.voice-lang {
+  font-size: var(--text-micro, 0.75rem);
+  color: var(--on-surface-mute, #94a3b8);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.voice-lang select {
+  min-height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border-soft, rgb(255 255 255 / 0.14));
+  background: rgb(4 18 31 / 0.6);
+  color: var(--on-surface, #f1f5f9);
+  font: inherit;
+  padding: 2px 6px;
+}
+
+/* Privacy disclosure — exactly once, plainly, near the mic. */
+.voice-privacy {
+  margin: 0;
+  font-size: var(--text-micro, 0.75rem);
+  line-height: 1.4;
+  color: var(--on-surface-mute, #94a3b8);
+}
+
+/* --- Error shake: only for a failed retry, NEVER for permission denied --- */
+.voice-sheet--shake {
+  animation: voice-shake 320ms ease-in-out 2;
+}
+
+@keyframes voice-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+/* --- Interim / final transcript in the composer ---
+   A <textarea> cannot style part of its text, so the state is shown at
+   field level: grey italic while interim words are pending (140 ms fade),
+   white roman once they settle (200 ms). The words are always plain,
+   editable text — never auto-sent. */
+#messageInput.voice-composer--interim {
+  color: rgb(255 255 255 / 0.55);
+  font-style: italic;
+  transition: color 140ms var(--ease-ios, cubic-bezier(0.25, 0.1, 0.25, 1));
+}
+
+#messageInput.voice-composer--final {
+  color: var(--on-surface, #f1f5f9);
+  font-style: normal;
+  transition: color 200ms var(--ease-ios, cubic-bezier(0.25, 0.1, 0.25, 1));
+}
+
+/* --- Fallbacks --- */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .voice-mic,
+  #micBtn,
+  .voice-sheet,
+  .voice-orb {
+    background: rgb(12 30 46 / 0.95);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .voice-mic,
+  #micBtn,
+  .voice-sheet,
+  .voice-orb {
+    background: #1a1a2e;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* --- Reduced motion: opacity-only, rings off, no shake, stepped levels --- */
+@media (prefers-reduced-motion: reduce) {
+  .voice-mic::after,
+  #micBtn::after,
+  .voice-orb__glow,
+  .voice-bar {
+    animation: none !important;
+  }
+
+  .voice-bar {
+    transform: scaleY(0.3);
+  }
+
+  .voice-ring {
+    display: none;
+  }
+
+  .voice-sheet {
+    transform: none;
+    transition: opacity 150ms ease-out;
+  }
+
+  .voice-sheet--open,
+  .voice-sheet--closing {
+    transform: none;
+  }
+
+  .voice-sheet--shake {
+    animation: none;
+  }
+
+  .voice-mic,
+  #micBtn,
+  .voice-orb,
+  .voice-actions button {
+    transition-duration: 0.01ms !important;
+  }
+}

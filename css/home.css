@@ -1,0 +1,488 @@
+/**
+ * home.css — Home screen: greeting hero card, sub-line, suggestion chips,
+ * home <-> chat morph classes, and the inline name prompt.
+ *
+ * OWNERSHIP: this file owns only the home screen. Aurora + shell tokens
+ * belong to foundation (tokens.css / base.css); the SVG refraction filter
+ * definition (#liquidGlassHero) belongs to index.html — see
+ * ~/workspace/hello-ai-redesign/build-notes/greeting.md.
+ *
+ * DESIGN (PLAN §3, §5; drafts/anim-05-greeting.md):
+ * - Glass is for chrome only. The hero card IS chrome (the greeting
+ *   surface), so it is glass; chips are plain capsules, not glass panels.
+ * - The hero is the ONE element with SVG liquid refraction:
+ *   feTurbulence + feDisplacementMap, scale ~22, 18 s SMIL loop.
+ *   Never add refraction to any other element, never nest backdrop-filter.
+ * - Only transform + opacity are animated. Blur radius is never animated.
+ * - Contrast: greeting text sits on the hero's darkened glass + scrim,
+ *   never directly on the bright aurora, so body text holds >= 4.5:1.
+ *   A text-shadow is kept as a second line of defence over bright blobs.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Home layout (centred column; the composer is owned by chat.css,    */
+/* its home position is set here only via the morph custom property)   */
+/* ------------------------------------------------------------------ */
+
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 24px;
+  width: 100%;
+  max-width: 768px; /* PLAN §3.3: centred column on desktop */
+  margin: 0 auto;
+  padding: 16px 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+/* ------------------------------------------------------------------ */
+/* Greeting hero card — the ONE SVG-refraction hero                    */
+/* ------------------------------------------------------------------ */
+
+.home-hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 28px 24px 24px;
+  text-align: center;
+
+  /* Glass recipe (PLAN §3.4): frost + translucency + lit hairline
+     border + layered shadow. The dark scrim under the glass keeps the
+     greeting text at >= 4.5:1 even over the brightest aurora blob. */
+  background:
+    linear-gradient(135deg, rgba(4, 18, 31, 0.55), rgba(4, 18, 31, 0.42) 55%, rgba(4, 18, 31, 0.5)),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.17), rgba(255, 255, 255, 0.08) 45%, rgba(255, 255, 255, 0.05));
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-top-color: rgba(255, 255, 255, 0.48);
+  border-bottom-color: rgba(255, 255, 255, 0.10);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.38),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.20),
+    0 20px 50px rgba(0, 0, 0, 0.35),
+    0 2px 14px rgba(0, 0, 0, 0.18);
+}
+
+/* Liquid refraction: Chromium-only, hero only. The filter itself
+   (#liquidGlassHero: feTurbulence baseFrequency 0.008-0.012 animated
+   18 s, feDisplacementMap scale 22) is defined once in index.html by
+   foundation. Plain blur above is the fallback for Safari/Firefox. */
+@supports (backdrop-filter: url(#liquidGlassHero)) {
+  .home-hero {
+    -webkit-backdrop-filter: url(#liquidGlassHero) blur(20px) saturate(170%);
+    backdrop-filter: url(#liquidGlassHero) blur(20px) saturate(170%);
+  }
+}
+
+/* One-time specular shimmer on the hero (anim-05 §4): a skewed white
+   stripe travels once per home visit, 6 s, opacity <= 0.12. */
+.home-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgba(255, 255, 255, 0.12) 46%, rgba(255, 255, 255, 0.04) 54%, transparent 70%);
+  background-size: 250% 100%;
+  background-position: 120% 0;
+  animation: hero-sheen 6s cubic-bezier(0.4, 0, 0.2, 1) 1s 1 both;
+}
+
+@keyframes hero-sheen {
+  from { background-position: 120% 0; }
+  to { background-position: -40% 0; }
+}
+
+/* Faint grain kills banding on the glass (opacity <= 0.06, PLAN §3.4). */
+.home-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* ------------------------------------------------------------------ */
+/* Greeting text                                                       */
+/* ------------------------------------------------------------------ */
+
+.home-hero__salutation,
+.home-hero__name,
+.home-hero__sub {
+  position: relative; /* above the ::before grain / ::after sheen */
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4); /* PLAN §3.1 contrast guard */
+}
+
+/* Salutation: display type, light weight. min-height LOCKS the layout
+   during a boundary swap (anim-05 §3): "Good morning," vs
+   "Good afternoon," differ in width, but nothing below may move 1 px. */
+.home-hero__salutation {
+  display: block;
+  min-height: 1.15em; /* one line-height, locked during swaps */
+  font-size: 32px;
+  line-height: 1.15;
+  font-weight: 300;
+  letter-spacing: -0.02em;
+  color: var(--text, #f1f5f9);
+}
+
+@media (min-width: 640px) {
+  .home-hero__salutation { font-size: 36px; }
+}
+
+/* Name: the visual anchor, heavier than the salutation. Hidden
+   (attribute) when no name is known — salutation-only greeting. */
+.home-hero__name {
+  display: block;
+  margin-top: 2px;
+  font-size: 32px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text, #f1f5f9);
+}
+
+@media (min-width: 640px) {
+  .home-hero__name { font-size: 36px; }
+}
+
+.home-hero__name[hidden] { display: none; }
+
+/* Sub-line: one quiet line under the greeting. #d7e0ea on the darkened
+   hero holds >= 4.5:1 (brighter than the generic --text-mute, which
+   would fail over a bright backdrop). */
+.home-hero__sub {
+  display: block;
+  margin-top: 10px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #d7e0ea;
+}
+
+.home-hero__sub[hidden] { display: none; }
+
+/* ------------------------------------------------------------------ */
+/* Load reveal (anim-05 §1) — only when JS adds .home-hero--reveal.   */
+/* Without the class the text is visible in its final state, so a     */
+/* JS failure or disabled JS never hides the greeting.                 */
+/* Salutation 80 ms, name 180 ms, sub-line 300 ms; 550/550/450 ms.    */
+/* ------------------------------------------------------------------ */
+
+@keyframes greeting-rise {
+  from { opacity: 0; transform: translateY(18px) scale(1.02); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes greeting-rise-soft { /* sub-line: no scale */
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.home-hero--reveal .home-hero__salutation {
+  animation: greeting-rise 550ms cubic-bezier(0.16, 1, 0.3, 1) 80ms both;
+}
+
+.home-hero--reveal .home-hero__name {
+  animation: greeting-rise 550ms cubic-bezier(0.16, 1, 0.3, 1) 180ms both;
+}
+
+.home-hero--reveal .home-hero__sub {
+  animation: greeting-rise-soft 450ms cubic-bezier(0.16, 1, 0.3, 1) 300ms both;
+}
+
+/* Name arriving late (after the salutation revealed): same rise, no
+   extra delay, salutation does not re-animate (anim-05 §1a). */
+.home-hero__name--late {
+  animation: greeting-rise 550ms cubic-bezier(0.16, 1, 0.3, 1) 0ms both;
+}
+
+/* ------------------------------------------------------------------ */
+/* Boundary swap — salutation ONLY (anim-05 §3, PLAN §5.2).            */
+/* Out 250 ms (accelerate, rises -10 px), in 350 ms (decelerate,      */
+/* from +10 px), 50 ms overlap — driven by greeting.js swapSalutation. */
+/* ------------------------------------------------------------------ */
+
+@keyframes greeting-swap-out {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-10px); }
+}
+
+@keyframes greeting-swap-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.greeting-swap-out {
+  animation: greeting-swap-out 250ms cubic-bezier(0.3, 0, 1, 1) both;
+}
+
+.greeting-swap-in {
+  animation: greeting-swap-in 350ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ------------------------------------------------------------------ */
+/* Suggestion chips — demoted from the hero (PLAN §5.1).               */
+/* Max 4, shown only after the first chat or on return visits;          */
+/* capsules, NOT glass panels. Tapping a chip starts a chat with       */
+/* that chip's text as the first message.                              */
+/* ------------------------------------------------------------------ */
+
+.home-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.home-chips[hidden] { display: none; }
+
+.home-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px; /* PLAN §3.3 touch target floor */
+  min-width: 44px;
+  padding: 10px 18px;
+  border-radius: 999px; /* capsule */
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.08); /* solid-ish tint, no backdrop-filter */
+  color: var(--text, #f1f5f9);
+  font: inherit;
+  font-size: 15px;
+  line-height: 1.4;
+  cursor: pointer;
+  transition: transform 120ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 120ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.home-chip:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.home-chip:active {
+  transform: scale(0.96); /* 120 ms press-scale, anim-05 §5 chip-tap */
+}
+
+.home-chip:focus-visible {
+  outline: 2px solid var(--accent, #22d3ee);
+  outline-offset: 2px;
+}
+
+/* Chips cascade on load (anim-05 §2): 350 ms each, 60 ms stagger,
+   first at 420 ms — home settles by ~950 ms. Only with the reveal
+   class, so no-JS still shows the chips. */
+@keyframes chip-rise {
+  from { opacity: 0; transform: translateY(14px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.home-hero--reveal ~ .home-chips .home-chip,
+.home--revealed .home-chip {
+  animation: chip-rise 350ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.home-hero--reveal ~ .home-chips .home-chip:nth-child(1),
+.home--revealed .home-chip:nth-child(1) { animation-delay: 420ms; }
+.home-hero--reveal ~ .home-chips .home-chip:nth-child(2),
+.home--revealed .home-chip:nth-child(2) { animation-delay: 480ms; }
+.home-hero--reveal ~ .home-chips .home-chip:nth-child(3),
+.home--revealed .home-chip:nth-child(3) { animation-delay: 540ms; }
+.home-hero--reveal ~ .home-chips .home-chip:nth-child(4),
+.home--revealed .home-chip:nth-child(4) { animation-delay: 600ms; }
+
+/* ------------------------------------------------------------------ */
+/* Home -> first chat morph (anim-05 §5, ~700 ms total).               */
+/* app.js adds .home--exiting to .home at send-tap, and               */
+/* .composer--docking to the composer (owned by chat.css, keyframes    */
+/* live here because the travel distance is a home-layout concern).    */
+/* Greeting exits 250 ms (up 16 px, scale 0.98); chips out together   */
+/* 200 ms (up 8 px); composer glides to dock in 450 ms with a         */
+/* midpoint keyframe (travel usually > 1/3 viewport on a phone).      */
+/* The hero is removed from layout only after the exit ends — app.js  */
+/* hides it at t = 450 ms (see build-notes/greeting.md).               */
+/* ------------------------------------------------------------------ */
+
+@keyframes home-exit {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-16px) scale(0.98); }
+}
+
+@keyframes chips-exit {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-8px); }
+}
+
+@keyframes composer-dock {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(calc(var(--dock-distance, 40vh) * 0.5)) scale(0.99); }
+  100% { transform: translateY(var(--dock-distance, 40vh)) scale(1); }
+}
+
+.home--exiting .home-hero {
+  animation: home-exit 250ms cubic-bezier(0.3, 0, 1, 1) both;
+  pointer-events: none;
+}
+
+.home--exiting .home-chips {
+  animation: chips-exit 200ms cubic-bezier(0.3, 0, 1, 1) both;
+  pointer-events: none;
+}
+
+.home--exiting .home-chips .home-chip {
+  animation: none; /* exit is one gesture, not a stagger */
+}
+
+.composer--docking {
+  animation: composer-dock 450ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ------------------------------------------------------------------ */
+/* Back home (anim-05 §6, ~650 ms total). app.js adds                 */
+/* .home--returning to .home. Greeting returns as ONE block in 400 ms */
+/* from 100 ms; chips re-enter with a tighter 50 ms stagger from      */
+/* 300 ms. Greeting text is re-computed silently before the return    */
+/* (a boundary passed while chatting shows the new text, no swap).    */
+/* ------------------------------------------------------------------ */
+
+@keyframes home-return {
+  from { opacity: 0; transform: translateY(14px) scale(1.01); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.home--returning .home-hero {
+  animation: home-return 400ms cubic-bezier(0.16, 1, 0.3, 1) 100ms both;
+}
+
+.home--returning .home-chip {
+  animation: chip-rise 350ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.home--returning .home-chip:nth-child(1) { animation-delay: 300ms; }
+.home--returning .home-chip:nth-child(2) { animation-delay: 350ms; }
+.home--returning .home-chip:nth-child(3) { animation-delay: 400ms; }
+.home--returning .home-chip:nth-child(4) { animation-delay: 450ms; }
+
+/* ------------------------------------------------------------------ */
+/* Inline name prompt ("What should I call you?") — asked ONCE on     */
+/* first visit when no name is known. Built by greeting.js via         */
+/* createElement/textContent only; styled here.                        */
+/* ------------------------------------------------------------------ */
+
+.name-prompt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(4, 18, 31, 0.45);
+}
+
+.name-prompt__label {
+  width: 100%;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--text, #f1f5f9);
+  text-align: center;
+}
+
+.name-prompt__input {
+  flex: 1 1 160px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text, #f1f5f9);
+  font: inherit;
+  font-size: 16px;
+}
+
+.name-prompt__input::placeholder { color: #94a3b8; }
+
+.name-prompt__input:focus-visible {
+  outline: 2px solid var(--accent, #22d3ee);
+  outline-offset: 2px;
+}
+
+.name-prompt__save,
+.name-prompt__skip {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.name-prompt__save {
+  border: none;
+  background: linear-gradient(135deg, #06b6d4, #6366f1 55%, #a855f7);
+  color: #ffffff;
+}
+
+.name-prompt__skip {
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: transparent;
+  color: var(--text, #f1f5f9);
+}
+
+.name-prompt__save:focus-visible,
+.name-prompt__skip:focus-visible {
+  outline: 2px solid var(--accent, #22d3ee);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Fallbacks — non-negotiable (PLAN §3.4, §9.5; anim-05 §7)            */
+/* ------------------------------------------------------------------ */
+
+/* Reduced transparency: solid opaque hero, no backdrop-filter. */
+@media (prefers-reduced-transparency: reduce) {
+  .home-hero {
+    background: #1a1a2e;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .home-hero::after { display: none; }
+}
+
+/* No backdrop-filter support: opaque-ish panel, text stays readable. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .home-hero {
+    background: rgba(4, 18, 31, 0.92);
+  }
+}
+
+/* Reduced motion: NOTHING moves. State changes are instant cuts —
+   greeting simply appears, swaps are instant, home <-> chat is a
+   clean cut, aurora/refraction freeze. Reduced motion is not slower
+   motion. (PLAN §9.5; anim-05 §7.) */
+@media (prefers-reduced-motion: reduce) {
+  .home-hero,
+  .home-hero *,
+  .home-chips,
+  .home-chips *,
+  .name-prompt,
+  .name-prompt * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .home-hero,
+  .home-hero__salutation,
+  .home-hero__name,
+  .home-hero__sub,
+  .home-chip {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .home-hero { filter: none; } /* stop refraction churn */
+  .home-hero::after { display: none; } /* no specular shimmer */
+}
