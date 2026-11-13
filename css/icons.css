@@ -1,0 +1,42 @@
+/* Hello AI — inline SVG icon presentation */
+.icon, .ha-icon { width:1.2em; height:1.2em; display:inline-block; flex:none; vertical-align:middle; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+.ha-icon { width:22px; height:22px; }
+.ha-icon--sm { width:18px; height:18px; }
+.ha-icon--lg { width:26px; height:26px; }
+.icon-token, .studio-icon, .emoji-glass {
+  position:relative; isolation:isolate; display:grid; place-items:center;
+  width:42px; height:42px; flex:none; border-radius:15px;
+  color:var(--icon-ink,#D8D4FF);
+  background:
+    radial-gradient(circle at 28% 16%,rgba(255,255,255,.42),transparent 38%),
+    linear-gradient(145deg,rgba(255,255,255,.17),rgba(255,255,255,.035)),
+    var(--icon-tint,rgba(142,132,255,.16));
+  border:1px solid rgba(224,231,255,.25);
+  box-shadow:0 8px 20px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(8,14,28,.20);
+  -webkit-backdrop-filter:blur(14px) saturate(180%);
+  backdrop-filter:blur(14px) saturate(180%);
+}
+.icon-token::after, .studio-icon::after, .emoji-glass::after {
+  content:""; position:absolute; inset:1px; border-radius:inherit; pointer-events:none;
+  background:linear-gradient(145deg,rgba(255,255,255,.18),transparent 42%);
+  opacity:.8;
+}
+.icon-token > *, .studio-icon > *, .emoji-glass > * { position:relative; z-index:1; }
+.icon-token--blue,.studio-icon--blue {--icon-ink:#A9DFFF;--icon-tint:rgba(88,169,255,.20)}
+.icon-token--violet,.studio-icon--violet {--icon-ink:#D1C5FF;--icon-tint:rgba(144,119,255,.22)}
+.icon-token--mint,.studio-icon--mint {--icon-ink:#A7F0D8;--icon-tint:rgba(75,211,174,.16)}
+.icon-token--gold,.studio-icon--gold {--icon-ink:#F5D7A4;--icon-tint:rgba(230,180,105,.18)}
+.icon-token--rose,.studio-icon--rose {--icon-ink:#FFB7C7;--icon-tint:rgba(255,119,153,.17)}
+.icon-token--cyan,.studio-icon--cyan {--icon-ink:#A7F1F4;--icon-tint:rgba(67,204,218,.18)}
+.icon-token--small,.studio-icon {width:40px;height:40px;border-radius:14px}
+.icon-token--round {border-radius:50%}
+.studio-btn .studio-icon {margin-bottom:2px}
+.studio-btn .studio-icon svg {width:21px;height:21px}
+.emoji-glass {width:36px;height:36px;border-radius:13px}
+@media (prefers-reduced-transparency:reduce) {
+ .icon-token,.studio-icon,.emoji-glass {backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--bg-solid-2)}
+}
+
+.ha-icon-library {position:absolute;width:0;height:0;overflow:hidden;pointer-events:none}
+.home-chip {display:inline-flex;align-items:center;gap:9px}
+.greeting-mark {width:46px;height:46px;margin:0 auto 20px;box-shadow:0 10px 28px rgba(136,126,255,.22),inset 0 1px 0 rgba(255,255,255,.38)}

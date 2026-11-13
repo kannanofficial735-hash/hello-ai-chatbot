@@ -27,6 +27,12 @@ body {
 }
 
 img, svg, video { display: block; max-width: 100%; }
+
+/* [hidden] must always win over display rules (e.g. .home{display:flex},
+   img{display:block}) — otherwise hidden screens and avatars still render.
+   Round-2 QA: home stayed visible above chat after send; the history
+   avatar showed a broken-image glyph despite hidden + empty src. */
+[hidden] { display: none !important; }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 input, textarea, select { font: inherit; color: inherit; }
 a { color: var(--accent-solid); }
