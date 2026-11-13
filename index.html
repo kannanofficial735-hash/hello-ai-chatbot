@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="Hello AI — a beautiful, fast AI chatbot. Ask anything — live AI answers, direct from the backend.">
-<meta name="theme-color" content="#052430">
+<meta name="theme-color" content="#0B1020">
 <title>Hello AI — Ask Anything</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Sora:wght@600;700;800&amp;display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;🤖&lt;/text&gt;&lt;/svg&gt;">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23c584fc'/%3E%3Cstop offset='50%25' stop-color='%237aa2ff'/%3E%3Cstop offset='100%25' stop-color='%233ddbd9'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%230b0f1f'/%3E%3Cpath d='M32 12l5.5 16.5L54 32l-16.5 3.5L32 52l-5.5-16.5L10 32l16.5-3.5z' fill='url(%23g)'/%3E%3Ccircle cx='48' cy='16' r='3' fill='%23ffffff'/%3E%3C/svg%3E">
 <!-- Foundation CSS (this module) -->
 <link rel="stylesheet" href="css/tokens.css">
 <link rel="stylesheet" href="css/base.css">
@@ -20,12 +20,31 @@
 <link rel="stylesheet" href="css/chat.css">
 <link rel="stylesheet" href="css/history.css">
 <link rel="stylesheet" href="css/panel.css">
+<link rel="stylesheet" href="css/icons.css">
+<link rel="stylesheet" href="css/polish.css">
 <!-- Google Identity Services is NOT loaded here: auth.js injects
      https://accounts.google.com/gsi/client only when a Client ID exists
      (HELLO_AI_CONFIG.clientId). Loading it unconditionally fetched the
      library even while sign-in was impossible. -->
 </head>
 <body>
+<svg class="ha-icon-library" aria-hidden="true" focusable="false" xmlns="http://www.w3.org/2000/svg">
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="m12 3 1.4 5.6L19 10l-5.6 1.4L12 17l-1.4-5.6L5 10l5.6-1.4L12 3Z"/><path d="m19 15 .7 2.3L22 18l-2.3.7L19 21l-.7-2.3L16 18l2.3-.7L19 15Z"/></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+<symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3m-4 0h8"/></symbol>
+<symbol id="i-send" viewBox="0 0 24 24"><path d="m21 3-7.2 18-3.7-7.1L3 10.2 21 3Z"/><path d="M10.1 13.9 15 9"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7"/></symbol>
+<symbol id="i-brain" viewBox="0 0 24 24"><path d="M12 5a4 4 0 0 0-7 2.6A4 4 0 0 0 5 15a4 4 0 0 0 7 3V5Zm0 0a4 4 0 0 1 7 2.6A4 4 0 0 1 19 15a4 4 0 0 1-7 3V5Z"/></symbol>
+<symbol id="i-pen" viewBox="0 0 24 24"><path d="m4 20 4.5-1 10.8-10.8a2.1 2.1 0 0 0-3-3L5.5 16 4 20Z"/><path d="m14.5 6.5 3 3"/></symbol>
+<symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M9 18h6m-5 3h4m-2-19a7 7 0 0 0-4 12.7c.6.4 1 1 1 1.8h6c0-.8.4-1.4 1-1.8A7 7 0 0 0 12 2Z"/></symbol>
+<symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .4-8A6 6 0 0 0 6 9.5 4.3 4.3 0 0 0 7 18Z"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></symbol>
+<symbol id="i-share" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="m16 3 5 5-4 1-4 4-1 6-2-2-2-2-2-2 6-1 4-4 1-5Z"/><path d="m8 16-5 5"/></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4m10-4v4M3 10h18M8 14h3m-3 3h3"/></symbol>
+</svg>
 <!-- Liquid refraction filters (SVG feTurbulence + feDisplacementMap).
      #liquidGlassHero — the ONE hero element (#greetingCard), scale 22, 18 s
      (PLAN §5.1 / anim-05 §4). #liquidGlassOrb — the voice mic orb
@@ -50,7 +69,7 @@
         <span class="dot amber status-dot" data-status-dot></span>
         <span data-status-text>Checking backend…</span>
       </span>
-      <span class="pill"><span aria-hidden="true">💎</span><span>Live AI</span></span>
+      <span class="pill live-pill"><span class="icon-token icon-token--gold icon-token--small"><svg class="ha-icon ha-icon--sm"><use href="#i-sparkles"></use></svg></span><span>Live AI</span></span>
     </div>
 
     <div class="login-card glass-heavy" id="loginCard">
@@ -91,13 +110,14 @@
         <span class="dot amber status-dot" data-status-dot></span>
         <span data-status-text>Checking backend…</span>
       </span>
-      <button type="button" id="historyBtn" class="icon-btn glass-light pressable" aria-label="Open chat history" aria-controls="historyDrawer" aria-expanded="false">☰</button>
+      <button type="button" id="historyBtn" class="icon-btn glass-light pressable" aria-label="Open chat history" aria-controls="historyDrawer" aria-expanded="false"><svg class="ha-icon" aria-hidden="true"><use href="#i-menu"></use></svg></button>
     </header>
 
     <!-- THE ONE hero element with SVG liquid refraction (#liquidGlassHero,
          scale 22, 18 s). greeting.js fills #greetingText / #greetingName;
          #greetingSub starts hidden and is revealed by greeting.js. -->
     <div id="greetingCard" class="home-hero greeting-reveal">
+      <span class="greeting-mark icon-token icon-token--violet icon-token--round" aria-hidden="true"><svg class="ha-icon"><use href="#i-sparkles"></use></svg></span>
       <h1 id="homeTitle"><span class="home-hero__salutation" id="greetingText" aria-live="off">Good morning</span> <span class="home-hero__name" id="greetingName" hidden></span></h1>
       <p class="home-hero__sub" id="greetingSub" hidden>What shall we explore today?</p>
     </div>
@@ -109,8 +129,8 @@
       <form class="composer glass-light" data-composer="home" action="#" novalidate>
         <label class="visually-hidden" for="homeComposerInput">Type your message</label>
         <textarea class="composer-input" id="homeComposerInput" rows="1" placeholder="Ask anything…" autocomplete="off"></textarea>
-        <button type="button" class="icon-btn composer-mic pressable" aria-label="Voice input"><svg class="icon" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-mic"></use></svg></button>
-        <button type="submit" class="composer-send pressable" aria-label="Send message">➤</button>
+        <button type="button" class="icon-btn composer-mic pressable" aria-label="Voice input"><svg class="icon" aria-hidden="true"><use href="#i-mic"></use></svg></button>
+        <button type="submit" class="composer-send pressable" aria-label="Send message"><svg class="ha-icon" aria-hidden="true"><use href="#i-send"></use></svg></button>
       </form>
     </div>
 
@@ -118,10 +138,10 @@
          chat.js unhide this row (max 4 chips) after the first chat or on
          return visits. -->
     <div id="chipsRow" class="home-chips chips" hidden>
-      <button type="button" class="home-chip chip pressable">🧠 What is AI?</button>
-      <button type="button" class="home-chip chip pressable">✍️ Write a poem</button>
-      <button type="button" class="home-chip chip pressable">💡 Explain quantum computing</button>
-      <button type="button" class="home-chip chip pressable">🌧️ A calm thought for today</button>
+      <button type="button" class="home-chip chip pressable"><span class="emoji-glass"><svg class="ha-icon"><use href="#i-brain"></use></svg></span><span>What is AI?</span></button>
+      <button type="button" class="home-chip chip pressable"><span class="emoji-glass"><svg class="ha-icon"><use href="#i-pen"></use></svg></span><span>Write a poem</span></button>
+      <button type="button" class="home-chip chip pressable"><span class="emoji-glass"><svg class="ha-icon"><use href="#i-lightbulb"></use></svg></span><span>Explain quantum computing</span></button>
+      <button type="button" class="home-chip chip pressable"><span class="emoji-glass"><svg class="ha-icon"><use href="#i-cloud"></use></svg></span><span>A calm thought for today</span></button>
     </div>
 
     <footer class="home-footer"><b>Hello AI</b> • Live AI only • Answers come live from the backend</footer>
@@ -130,7 +150,7 @@
   <!-- ======================= SCREEN 3 — CHAT ======================= -->
   <section id="chatScreen" class="screen" aria-labelledby="chatTitle" hidden>
     <header class="chat-header glass-light">
-      <button type="button" id="chatHistoryBtn" class="icon-btn pressable" aria-label="Open chat history" aria-controls="historyDrawer" aria-expanded="false">☰</button>
+      <button type="button" id="chatHistoryBtn" class="icon-btn pressable" aria-label="Open chat history" aria-controls="historyDrawer" aria-expanded="false"><svg class="ha-icon" aria-hidden="true"><use href="#i-menu"></use></svg></button>
       <h1 id="chatTitle" class="chat-title">New chat</h1>
       <span class="pill status-pill" id="chatStatusPill" data-status-pill role="status" aria-live="polite">
         <span class="dot amber status-dot" data-status-dot></span>
@@ -139,7 +159,7 @@
       <!-- Avatar button opens the account sheet / bottom panel (panel.js). -->
       <button type="button" id="chatAvatarBtn" class="icon-btn avatar-btn pressable" aria-label="Open account panel" aria-controls="bottomPanel" aria-expanded="false">
         <img id="chatAvatarImg" src="" alt="" hidden>
-        <span id="chatAvatarFallback" aria-hidden="true">👤</span>
+        <span id="chatAvatarFallback" aria-hidden="true"><svg class="ha-icon"><use href="#i-user"></use></svg></span>
       </button>
     </header>
 
@@ -154,11 +174,11 @@
     <button type="button" id="jumpToLatestBtn" class="pill jump-latest" hidden>↓ Jump to latest</button>
 
     <form class="composer glass-light" id="chatComposer" data-composer="chat" action="#" novalidate>
-      <button type="button" class="icon-btn composer-plus pressable" aria-label="New chat"><svg class="icon" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-plus"></use></svg></button>
+      <button type="button" class="icon-btn composer-plus pressable" aria-label="New chat"><svg class="icon" aria-hidden="true"><use href="#i-plus"></use></svg></button>
       <label class="visually-hidden" for="messageInput">Type your message</label>
       <textarea class="composer-input" id="messageInput" rows="1" placeholder="Type a message…" autocomplete="off"></textarea>
-      <button type="button" class="icon-btn composer-mic pressable" id="micBtn" aria-label="Voice input"><svg class="icon" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-mic"></use></svg></button>
-      <button type="submit" class="composer-send pressable" aria-label="Send message"><svg class="icon composer-send__icon" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-send"></use></svg><span class="composer-send__spinner" aria-hidden="true"></span></button>
+      <button type="button" class="icon-btn composer-mic pressable" id="micBtn" aria-label="Voice input"><svg class="icon" aria-hidden="true"><use href="#i-mic"></use></svg></button>
+      <button type="submit" class="composer-send pressable" aria-label="Send message"><svg class="icon composer-send__icon" aria-hidden="true"><use href="#i-send"></use></svg><span class="composer-send__spinner" aria-hidden="true"></span></button>
     </form>
     <p class="voice-disclosure" id="voiceDisclosure">Voice is transcribed by Google.</p>
   </section>
@@ -168,21 +188,21 @@
   <aside id="historyDrawer" class="glass-light history-drawer" aria-label="Chat history" hidden>
     <div class="drawer-head">
       <h2>History</h2>
-      <button type="button" id="historyCloseBtn" class="icon-btn pressable" aria-label="Close history"><svg class="icon" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-close"></use></svg></button>
+      <button type="button" id="historyCloseBtn" class="icon-btn pressable" aria-label="Close history"><svg class="icon" aria-hidden="true"><use href="#i-close"></use></svg></button>
     </div>
 
     <!-- Account profile at the TOP of history (PLAN §7.1). Tap opens the
          account sheet / bottom panel. Email shown only inside this app. -->
     <button type="button" id="historyProfile" class="history-profile" aria-label="Open account panel">
       <img id="historyAvatar" class="profile-photo" src="" alt="" hidden>
-      <span id="historyAvatarFallback" class="profile-photo-fallback" aria-hidden="true">👤</span>
+      <span id="historyAvatarFallback" class="profile-photo-fallback" aria-hidden="true"><svg class="ha-icon"><use href="#i-user"></use></svg></span>
       <span class="profile-text">
         <span id="historyProfileName" class="profile-name">Aadidev</span>
         <span id="historyProfileEmail" class="profile-email"></span>
       </span>
     </button>
 
-    <button type="button" id="newChatBtn" class="new-chat-btn pressable">＋ New chat</button>
+    <button type="button" id="newChatBtn" class="new-chat-btn pressable"><svg class="ha-icon ha-icon--sm" aria-hidden="true"><use href="#i-plus"></use></svg> New chat</button>
 
     <label class="visually-hidden" for="historySearch">Search chats</label>
     <input type="search" id="historySearch" class="history-search" placeholder="Search chats" autocomplete="off">
@@ -202,7 +222,7 @@
     <!-- Account section (top of panel) -->
     <div id="panelAccount" class="panel-account">
       <img id="panelAvatar" class="profile-photo" src="" alt="" hidden>
-      <span id="panelAvatarFallback" class="profile-photo-fallback" aria-hidden="true">👤</span>
+      <span id="panelAvatarFallback" class="profile-photo-fallback" aria-hidden="true"><svg class="ha-icon"><use href="#i-user"></use></svg></span>
       <span class="profile-text">
         <span id="panelAccountName" class="profile-name">Aadidev</span>
         <span id="panelAccountEmail" class="profile-email"></span>
@@ -215,13 +235,13 @@
     <!-- Studio section: 7 buttons (PLAN §8.2). 4 preset + 3 invented.
          panel.js wires each via data-studio-action. -->
     <div id="studioGrid" class="studio-grid" role="group" aria-label="Studio actions">
-      <button type="button" class="studio-btn pressable" id="studioNewChat" data-studio-action="new-chat">＋<span>New chat</span></button>
-      <button type="button" class="studio-btn pressable" id="studioVoice" data-studio-action="voice-talk">🎙️<span>Voice talk</span></button>
-      <button type="button" class="studio-btn pressable" id="studioSearch" data-studio-action="search-chats">🔍<span>Search chats</span></button>
-      <button type="button" class="studio-btn pressable" id="studioShare" data-studio-action="share-export">↗️<span>Share / Export</span></button>
-      <button type="button" class="studio-btn pressable" id="studioExplain" data-studio-action="explain-simply">✨<span>Explain simply</span></button>
-      <button type="button" class="studio-btn pressable" id="studioMalayalam" data-studio-action="malayalam-mode">മ<span>മലയാളം mode</span></button>
-      <button type="button" class="studio-btn pressable" id="studioRecap" data-studio-action="todays-recap">🗓️<span>Today's recap</span></button>
+      <button type="button" class="studio-btn pressable" id="studioNewChat" data-studio-action="new-chat"><span class="studio-icon studio-icon--blue"><svg class="ha-icon"><use href="#i-plus"></use></svg></span><span>New chat</span></button>
+      <button type="button" class="studio-btn pressable" id="studioVoice" data-studio-action="voice-talk"><span class="studio-icon studio-icon--cyan"><svg class="ha-icon"><use href="#i-mic"></use></svg></span><span>Voice talk</span></button>
+      <button type="button" class="studio-btn pressable" id="studioSearch" data-studio-action="search-chats"><span class="studio-icon studio-icon--violet"><svg class="ha-icon"><use href="#i-search"></use></svg></span><span>Search chats</span></button>
+      <button type="button" class="studio-btn pressable" id="studioShare" data-studio-action="share-export"><span class="studio-icon studio-icon--mint"><svg class="ha-icon"><use href="#i-share"></use></svg></span><span>Share / Export</span></button>
+      <button type="button" class="studio-btn pressable" id="studioExplain" data-studio-action="explain-simply"><span class="studio-icon studio-icon--gold"><svg class="ha-icon"><use href="#i-lightbulb"></use></svg></span><span>Explain simply</span></button>
+      <button type="button" class="studio-btn pressable" id="studioMalayalam" data-studio-action="malayalam-mode"><span class="studio-icon studio-icon--rose"><span lang="ml" style="font-family:var(--font-body);font-weight:700">മ</span></span><span>മലയാളം mode</span></button>
+      <button type="button" class="studio-btn pressable" id="studioRecap" data-studio-action="todays-recap"><span class="studio-icon studio-icon--blue"><svg class="ha-icon"><use href="#i-calendar"></use></svg></span><span>Today's recap</span></button>
     </div>
   </section>
 
