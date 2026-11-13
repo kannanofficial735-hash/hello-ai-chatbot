@@ -199,6 +199,7 @@
     return fetch(BACKEND_URL + "/health", {
       method: "GET",
       cache: "no-store",
+      headers: { "ngrok-skip-browser-warning": "true" },
       signal: healthController.signal
     }).then(function (res) {
       window.clearTimeout(timer);
