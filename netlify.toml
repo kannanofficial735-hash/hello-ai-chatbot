@@ -1,0 +1,6 @@
+# Hello AI — Netlify configuration
+# Static site: no build command. Publish the repo root as-is.
+
+[build]
+  publish = "."
+  command = ""

@@ -5,276 +5,246 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="Hello AI — a beautiful, fast AI chatbot. Ask anything — live AI answers, direct from the backend.">
 <meta name="theme-color" content="#052430">
-<title>Hello AI — Ask Anything 🚀💎</title>
+<title>Hello AI — Ask Anything</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
-<style>
-/* LIQUID GLASS — Apple-style glassmorphism, dark-glass variant.
-Backdrop FIRST (glass shows nothing without it), then frosted panels,
-one liquid-refraction hero (the header), specular bubbles, live status
-pill, motion + safety fallbacks. backdrop-filter is NEVER nested:
-only header, main.chat, .pill, .chip, .composer and .notice frost
-themselves. Everything inside them uses plain rgba. */
-:root{
---bg:#04121f; --bg2:#062a33; --bg-deep:#020a12;
---glass:rgba(255,255,255,.12); --glass-strong:rgba(255,255,255,.18);
---glass-border:rgba(255,255,255,.28); --glass-border-soft:rgba(255,255,255,.14);
---text:#f1f5f9; --text-dim:#cbd5e1; --text-mute:#94a3b8;
---accent:#22d3ee; --accent2:#a78bfa; --accent3:#fbbf24;
---user-bg:linear-gradient(135deg,#06b6d4,#6366f1 55%,#a855f7);
---ai-bg:rgba(255,255,255,.07);
---shadow:0 20px 50px rgba(0,0,0,.35);
---radius:24px; --radius-sm:18px;
---success:#34d399; --warn:#fbbf24; --error:#f87171;
---input-bg:rgba(255,255,255,.08);
-}
-[data-theme="light"]{
---bg:#dbeafe; --bg2:#f8fafc;
---glass:rgba(255,255,255,.58); --glass-strong:rgba(255,255,255,.82);
---glass-border:rgba(255,255,255,.9); --glass-border-soft:rgba(15,23,42,.08);
---text:#0f172a; --text-dim:#334155; --text-mute:#64748b;
---ai-bg:rgba(255,255,255,.72);
---shadow:0 20px 50px rgba(15,23,42,.12);
---input-bg:rgba(255,255,255,.85);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;color:var(--text);background:linear-gradient(180deg,#04121f 0%,#062a33 55%,#03202b 100%);min-height:100dvh;overflow-x:hidden;transition:background .5s ease,color .5s ease;-webkit-font-smoothing:antialiased}
-[data-theme="light"] body{background:linear-gradient(180deg,#dbeafe 0%,#e0e7ff 55%,#f8fafc 100%)}
-/* 1) BACKDROP FIRST — vivid animated aurora / mesh gradient, deep navy-teal with amber-gold accents. */
-.aurora{position:fixed;inset:0;z-index:-2;overflow:hidden;background:radial-gradient(900px 620px at 12% 8%, rgba(34,211,238,.42), transparent 60%),radial-gradient(820px 620px at 88% 12%, rgba(168,85,247,.38), transparent 60%),radial-gradient(760px 620px at 52% 96%, rgba(245,158,11,.30), transparent 60%),radial-gradient(640px 520px at 78% 78%, rgba(20,184,166,.30), transparent 62%),linear-gradient(180deg,#04121f,#062a33 55%,#03202b);animation:auroraShift 28s ease-in-out infinite alternate}
-@keyframes auroraShift{from{filter:hue-rotate(0deg) saturate(1)}to{filter:hue-rotate(18deg) saturate(1.15)}}
-[data-theme="light"] .aurora{background:radial-gradient(900px 620px at 12% 8%, rgba(34,211,238,.34), transparent 60%),radial-gradient(820px 620px at 88% 12%, rgba(168,85,247,.28), transparent 60%),radial-gradient(760px 620px at 52% 96%, rgba(245,158,11,.26), transparent 60%),radial-gradient(640px 520px at 78% 78%, rgba(20,184,166,.24), transparent 62%),linear-gradient(180deg,#dbeafe,#e0e7ff 55%,#f8fafc)}
-.blob{position:absolute;border-radius:50%;filter:blur(80px);opacity:.6;will-change:transform;animation:drift 22s ease-in-out infinite alternate}
-.blob.b1{width:480px;height:480px;background:#14b8a6;top:-100px;left:-90px;animation-duration:24s}
-.blob.b2{width:420px;height:420px;background:#0ea5e9;top:16%;right:-110px;animation:drift2 26s ease-in-out infinite alternate;animation-delay:-6s}
-.blob.b3{width:360px;height:360px;background:#f59e0b;bottom:-90px;left:28%;opacity:.42;animation:drift3 20s ease-in-out infinite alternate;animation-delay:-10s}
-.blob.b4{width:340px;height:340px;background:#8b5cf6;top:52%;left:-120px;opacity:.5;animation:drift2 28s ease-in-out infinite alternate;animation-delay:-14s}
-.blob.b5{width:300px;height:300px;background:#10b981;bottom:8%;right:12%;opacity:.4;animation:drift 18s ease-in-out infinite alternate;animation-delay:-4s}
-@keyframes drift{0%{transform:translate(0,0) scale(1)}50%{transform:translate(48px,-36px) scale(1.1)}100%{transform:translate(-24px,28px) scale(.96)}}
-@keyframes drift2{0%{transform:translate(0,0) scale(1)}50%{transform:translate(-56px,32px) scale(1.08)}100%{transform:translate(28px,-24px) scale(.97)}}
-@keyframes drift3{0%{transform:translate(0,0) scale(1)}50%{transform:translate(36px,40px) scale(1.12)}100%{transform:translate(-32px,-28px) scale(.95)}}
-/* Faint feTurbulence grain over everything (opacity .05) to kill banding; pointer-events:none so it never blocks taps. */
-.grain{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>")}
-.liquid-svg{position:absolute;width:0;height:0;overflow:hidden}
-.app{max-width:860px;margin:0 auto;padding:18px 16px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;min-height:100dvh;gap:14px;position:relative;z-index:1}
-.app>*{animation:riseIn .65s cubic-bezier(.22,.9,.3,1) both}
-.app>*:nth-child(2){animation-delay:.05s}.app>*:nth-child(3){animation-delay:.1s}.app>*:nth-child(4){animation-delay:.15s}.app>*:nth-child(5){animation-delay:.2s}.app>*:nth-child(6){animation-delay:.25s}.app>*:nth-child(7){animation-delay:.3s}
-@keyframes riseIn{from{opacity:0;transform:translateY(16px) scale(.995)}to{opacity:1;transform:translateY(0) scale(1)}}
-/* 2) GLASS PANELS — blur 20px saturate 170%, rgba(255,255,255,.12-.18) fill, 1px border brighter top-left / dim bottom-right, inset top highlight + bottom shade. */
-header,main.chat,.composer,.notice{background:linear-gradient(135deg,rgba(255,255,255,.17),rgba(255,255,255,.08) 45%,rgba(255,255,255,.05));border:1px solid rgba(255,255,255,.28);border-top-color:rgba(255,255,255,.48);border-left-color:rgba(255,255,255,.36);border-right-color:rgba(255,255,255,.15);border-bottom-color:rgba(255,255,255,.10);-webkit-backdrop-filter:blur(20px) saturate(170%);backdrop-filter:blur(20px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.38),inset 0 -1px 0 rgba(0,0,0,.20),inset 1px 0 0 rgba(255,255,255,.12),0 20px 50px rgba(0,0,0,.35),0 2px 14px rgba(0,0,0,.18)}
-.pill,.chip{position:relative;background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(255,255,255,.07));border:1px solid rgba(255,255,255,.28);border-top-color:rgba(255,255,255,.45);border-left-color:rgba(255,255,255,.34);border-bottom-color:rgba(255,255,255,.10);-webkit-backdrop-filter:blur(16px) saturate(170%);backdrop-filter:blur(16px) saturate(170%);box-shadow:inset 0 1px 0 rgba(255,255,255,.32),inset 0 -1px 0 rgba(0,0,0,.14),0 8px 22px rgba(0,0,0,.22)}
-/* 3) ONE LIQUID HERO: the header only. Plain blur is the fallback; Chromium-only backdrop-filter:url(#liquidGlass) adds feTurbulence + feDisplacementMap refraction, scale 18, animated 16s. */
-header{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:var(--radius);position:sticky;top:12px;z-index:10;overflow:hidden;transition:transform .25s ease,box-shadow .25s ease}
-header:hover{transform:translateY(-2px)}
-header::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.14) 46%,rgba(255,255,255,.04) 54%,transparent 70%);background-size:250% 100%;animation:sheen 12s ease-in-out infinite}
-@keyframes sheen{0%,100%{background-position:120% 0}50%{background-position:-40% 0}}
-@supports (backdrop-filter:url(#liquidGlass)){header{-webkit-backdrop-filter:url(#liquidGlass) blur(20px) saturate(170%);backdrop-filter:url(#liquidGlass) blur(20px) saturate(170%)}}
-.logo{width:52px;height:52px;flex:0 0 52px;border-radius:16px;display:grid;place-items:center;font-size:28px;background:linear-gradient(135deg,#0ea5e9,#6366f1,#a855f7);box-shadow:0 10px 24px rgba(99,102,241,.45),inset 0 1px 0 rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.35)}
-.title h1{font-family:'Sora',sans-serif;font-size:21px;line-height:1.1;letter-spacing:-.02em}
-.title h1 span{background:linear-gradient(90deg,#22d3ee,#a78bfa,#fbbf24);-webkit-background-clip:text;background-clip:text;color:transparent}
-.title p{font-size:12.5px;color:var(--text-mute);margin-top:3px}
-.header-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
-.icon-btn{width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.12);color:var(--text);font-size:19px;cursor:pointer;display:grid;place-items:center;transition:transform .2s ease,background .2s ease}
-.icon-btn:hover{transform:translateY(-1px) scale(1.04);background:rgba(255,255,255,.20)}
-.icon-btn:active{transform:scale(.96)}
-.icon-btn:focus-visible,.chip:focus-visible,#sendBtn:focus-visible,#messageInput:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.status-bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.pill{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;font-size:12.5px;font-weight:600;transition:transform .2s ease,background .2s ease}
-.pill:hover{transform:translateY(-1px);background:linear-gradient(135deg,rgba(255,255,255,.22),rgba(255,255,255,.10))}
-.dot{width:9px;height:9px;border-radius:50%;flex:0 0 9px}
-.dot.green{background:var(--success);box-shadow:0 0 0 4px rgba(52,211,153,.18),0 0 12px rgba(52,211,153,.8);animation:pulse 2s infinite}
-.dot.amber{background:var(--warn);box-shadow:0 0 0 4px rgba(251,191,36,.18),0 0 12px rgba(251,191,36,.7);animation:pulse 2s infinite}
-.dot.red{background:var(--error);box-shadow:0 0 0 4px rgba(248,113,113,.18)}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.82)}}
-.pill small{font-weight:500;color:var(--text-mute)}
-.notice{display:flex;gap:11px;align-items:flex-start;padding:13px 15px;border-radius:var(--radius-sm);font-size:13.5px;line-height:1.55;color:var(--text-dim)}
-.notice.hidden{display:none}
-.notice b{color:var(--text)}
-.notice .ico{font-size:18px;line-height:1.2}
-.notice code{background:rgba(0,0,0,.22);padding:2px 6px;border-radius:6px;font-size:12px}
-[data-theme="light"] .notice code{background:rgba(15,23,42,.08)}
-main.chat{flex:1;display:flex;flex-direction:column;gap:14px;padding:18px 14px;border-radius:var(--radius);min-height:420px;overflow-anchor:none;transition:transform .25s ease}
-main.chat:hover{transform:translateY(-1px)}
-.empty{margin:auto;text-align:center;max-width:520px;padding:28px 10px;color:var(--text-dim)}
-.empty .big{font-size:52px;margin-bottom:12px}
-.empty h2{font-family:'Sora',sans-serif;font-size:22px;color:var(--text);margin-bottom:8px}
-.empty p{font-size:14.5px;line-height:1.65}
-.msg{display:flex;gap:10px;max-width:92%;animation:rise .35s ease both}
-@keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.msg.user{align-self:flex-end;flex-direction:row-reverse}
-.msg.ai{align-self:flex-start}
-.avatar{width:36px;height:36px;flex:0 0 36px;border-radius:50%;display:grid;place-items:center;font-size:18px;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22)}
-.msg.user .avatar{background:var(--user-bg);color:#fff;border-color:rgba(255,255,255,.3)}
-.bubble{padding:12px 15px;border-radius:18px;font-size:15px;line-height:1.65;white-space:pre-wrap;word-break:break-word;border:1px solid var(--glass-border-soft);box-shadow:0 6px 20px rgba(0,0,0,.10)}
-.msg.user .bubble{background:linear-gradient(135deg,rgba(6,182,212,.94),rgba(99,102,241,.94) 55%,rgba(168,85,247,.94));color:#fff;border:1px solid rgba(255,255,255,.38);border-bottom-right-radius:6px;box-shadow:inset 0 1px 0 rgba(255,255,255,.45),inset 0 -1px 0 rgba(0,0,0,.12),0 10px 24px rgba(14,165,233,.28)}
-.msg.ai .bubble{background:linear-gradient(135deg,rgba(255,255,255,.15),rgba(255,255,255,.06));color:var(--text);border:1px solid rgba(255,255,255,.22);border-top-color:rgba(255,255,255,.38);border-bottom-left-radius:6px;box-shadow:inset 0 1px 0 rgba(255,255,255,.30),inset 0 -1px 0 rgba(0,0,0,.12),0 6px 20px rgba(0,0,0,.12)}
-.msg.ai.error .bubble{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.10)}
-.bubble .meta{display:block;font-size:11px;opacity:.65;margin-top:6px;font-weight:500}
-.bubble a{color:var(--accent);font-weight:600}
-.typing{display:inline-flex;gap:5px;align-items:center;padding:14px 16px;background:linear-gradient(110deg,rgba(255,255,255,.08) 30%,rgba(255,255,255,.22) 50%,rgba(255,255,255,.08) 70%);background-size:200% 100%;animation:shimmer 1.6s linear infinite}
-@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
-.typing i{width:8px;height:8px;border-radius:50%;background:var(--text-mute);animation:bounce 1.2s infinite}
-.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
-@keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.5}30%{transform:translateY(-5px);opacity:1}}
-.chips{display:flex;gap:8px;flex-wrap:wrap}
-.chip{padding:9px 14px;border-radius:999px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer;transition:transform .18s ease,background .18s ease,box-shadow .18s ease}
-.chip:hover{transform:translateY(-2px);background:linear-gradient(135deg,rgba(255,255,255,.24),rgba(255,255,255,.11));box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 12px 26px rgba(0,0,0,.28)}
-.composer{display:flex;gap:10px;align-items:flex-end;padding:12px;border-radius:var(--radius);position:sticky;bottom:12px;transition:transform .25s ease}
-.composer:hover{transform:translateY(-1px)}
-#messageInput{flex:1;outline:0;background:var(--input-bg);color:var(--text);border:1px solid var(--glass-border-soft);border-radius:16px;padding:13px 15px;font:inherit;font-size:15px;resize:none;max-height:140px;line-height:1.5;transition:border-color .2s ease,box-shadow .2s ease}
-#messageInput::placeholder{color:var(--text-mute)}
-#messageInput:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(56,189,248,.18)}
-#sendBtn{flex:0 0 auto;width:50px;height:50px;border-radius:16px;border:0;cursor:pointer;background:var(--user-bg);color:#fff;font-size:20px;box-shadow:0 10px 22px rgba(99,102,241,.4),inset 0 1px 0 rgba(255,255,255,.45);transition:transform .18s ease,opacity .18s ease;position:relative;overflow:hidden}
-#sendBtn::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.55) 50%,transparent 60%);transform:translateX(-130%);transition:transform .6s ease;pointer-events:none}
-#sendBtn:hover{transform:translateY(-1px) scale(1.03)}
-#sendBtn:hover::after{transform:translateX(130%)}
-#sendBtn:active{transform:scale(.96)}
-#sendBtn:disabled{opacity:.55;cursor:not-allowed;transform:none}
-footer{text-align:center;font-size:12px;color:var(--text-mute);line-height:1.6;padding:2px 8px}
-footer b{color:var(--text-dim)}
-@media (max-width:560px){.app{padding:12px 10px calc(12px + env(safe-area-inset-bottom));gap:10px}header{padding:12px;border-radius:20px}.logo{width:46px;height:46px;flex-basis:46px;font-size:24px}.title h1{font-size:18px}.title p{font-size:11.5px}main.chat{padding:14px 10px;min-height:380px}.msg{max-width:96%}.bubble{font-size:14.5px;padding:11px 13px}.empty .big{font-size:44px}.composer{padding:10px}#sendBtn{width:48px;height:48px}.blob{filter:blur(60px);opacity:.45}}
-@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){header,main.chat,.composer,.notice,.pill,.chip{background:#0c1e2e}[data-theme="light"] header,[data-theme="light"] main.chat,[data-theme="light"] .composer,[data-theme="light"] .notice,[data-theme="light"] .pill,[data-theme="light"] .chip{background:#ffffff}}
-@media (prefers-reduced-transparency:reduce){header,main.chat,.composer,.notice,.pill,.chip{background:#0c1e2e;-webkit-backdrop-filter:none;backdrop-filter:none}[data-theme="light"] header,[data-theme="light"] main.chat,[data-theme="light"] .composer,[data-theme="light"] .notice,[data-theme="light"] .pill,[data-theme="light"] .chip{background:#ffffff}.grain{display:none}}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none !important;transition:none !important}html{scroll-behavior:auto}.blob,.aurora{animation:none}}
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Sora:wght@600;700;800&amp;display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='.9em' font-size='90'&gt;🤖&lt;/text&gt;&lt;/svg&gt;">
+<!-- Foundation CSS (this module) -->
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/animations.css">
+<!-- Per-screen CSS (filled in by their modules; linked now per PLAN §12.1) -->
+<link rel="stylesheet" href="css/login.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/chat.css">
+<link rel="stylesheet" href="css/history.css">
+<link rel="stylesheet" href="css/panel.css">
+<!-- Google Identity Services is NOT loaded here: auth.js injects
+     https://accounts.google.com/gsi/client only when a Client ID exists
+     (HELLO_AI_CONFIG.clientId). Loading it unconditionally fetched the
+     library even while sign-in was impossible. -->
 </head>
 <body>
-<!-- Liquid refraction filter: used ONLY by the header via backdrop-filter:url(#liquidGlass). Plain blur is the fallback for Safari/Firefox. -->
-<svg class="liquid-svg" aria-hidden="true" focusable="false"><defs><filter id="liquidGlass" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.018" numOctaves="2" seed="7" result="noise"><animate attributeName="baseFrequency" dur="16s" values="0.012 0.018;0.018 0.012;0.012 0.018" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" in2="noise" scale="18" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
+<!-- Liquid refraction filters (SVG feTurbulence + feDisplacementMap).
+     #liquidGlassHero — the ONE hero element (#greetingCard), scale 22, 18 s
+     (PLAN §5.1 / anim-05 §4). #liquidGlassOrb — the voice mic orb
+     (css/voice.css), scale 14 (anim-04). Plain blur is the fallback where
+     backdrop-filter:url(...) is unsupported. The old #liquidGlass def
+     (scale 18, 16 s, from the pre-redesign header) is gone: nothing in
+     css/ or js/ referenced it any more. -->
+<svg class="liquid-svg" aria-hidden="true" focusable="false"><defs><filter id="liquidGlassHero" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.008 0.012" numOctaves="2" seed="7" result="noise"><animate attributeName="baseFrequency" dur="18s" values="0.008 0.012;0.012 0.008;0.008 0.012" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" in2="noise" scale="22" xChannelSelector="R" yChannelSelector="G"/></filter><filter id="liquidGlassOrb" x="-20%" y="-20%" width="140%" height="140%" color-interpolation-filters="sRGB"><feTurbulence type="fractalNoise" baseFrequency="0.010 0.014" numOctaves="2" seed="7" result="noise"><animate attributeName="baseFrequency" dur="18s" values="0.010 0.014;0.014 0.010;0.010 0.014" repeatCount="indefinite"/></feTurbulence><feDisplacementMap in="SourceGraphic" in2="noise" scale="14" xChannelSelector="R" yChannelSelector="G"/></filter></defs></svg>
+
+<!-- ONE fixed aurora layer, mounted once, never restarted on navigation.
+     Five blobs, reused from the current site. -->
 <div class="aurora" aria-hidden="true"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div><div class="blob b5"></div></div>
 <div class="grain" aria-hidden="true"></div>
+
 <div class="app">
-<header><div class="logo" aria-hidden="true">🤖</div><div class="title"><h1>Hello <span>AI</span></h1><p>Ask anything — fast, friendly &amp; free</p></div><div class="header-actions"><button class="icon-btn" id="clearBtn" type="button" title="Clear chat" aria-label="Clear chat">🧹</button><button class="icon-btn" id="themeBtn" type="button" title="Switch dark / light mode" aria-label="Switch dark or light mode">🌚</button></div></header>
-<div class="status-bar" role="status" aria-live="polite"><span class="pill" id="statusPill"><span class="dot amber" id="statusDot"></span><span id="statusText">Checking backend…</span></span><span class="pill" id="modePill">💎 <span id="modeText">Live AI</span></span></div>
-<main class="chat" id="chat" aria-live="polite" aria-label="Chat messages"><div class="empty" id="emptyState"><div class="big">🤖🚀</div><h2>Hello, Aadidev! What shall we explore?</h2><p>Try a simple hello — or a complex question about AI, coding, science, history or anything else. Answers come live from the AI backend.</p></div></main>
-<div class="chips" id="chips"><button class="chip" type="button">🚀 Hello!</button><button class="chip" type="button">🧠 What is AI?</button><button class="chip" type="button">🐍 Explain Python in simple words</button><button class="chip" type="button">🪐 What is a black hole?</button><button class="chip" type="button">🎶 Tell me about music &amp; peace</button></div>
-<form class="composer" id="composer"><label for="messageInput" class="sr-only" style="position:absolute;left:-9999px">Type your message</label><textarea id="messageInput" rows="1" placeholder="Type a message… try a hard question!" autocomplete="off"></textarea><button id="sendBtn" type="submit" title="Send" aria-label="Send message">➤</button></form>
-<footer><b>Hello AI</b> • Live AI only • Answers come live from the backend<br>Static site — no sign-in, no tracking. Made for Aadidev 🚀💎</footer>
+  <noscript><p class="glass" style="padding:16px">Hello AI needs JavaScript to run. Please enable JavaScript and reload.</p></noscript>
+
+  <!-- ======================= SCREEN 1 — LOGIN ======================= -->
+  <section id="loginScreen" class="screen is-active" aria-labelledby="loginTitle">
+    <div class="status-bar" role="status" aria-live="polite">
+      <span class="pill status-pill" id="loginStatusPill" data-status-pill>
+        <span class="dot amber status-dot" data-status-dot></span>
+        <span data-status-text>Checking backend…</span>
+      </span>
+      <span class="pill"><span aria-hidden="true">💎</span><span>Live AI</span></span>
+    </div>
+
+    <div class="login-card glass-heavy" id="loginCard">
+      <!-- App logo: 96px, navy-teal gradient, amber-gold sparkle, neural dots
+           (continuing the v1.1 APK icon). Inline SVG, no external asset. -->
+      <svg class="app-logo" width="96" height="96" viewBox="0 0 96 96" role="img" aria-label="Hello AI logo">
+        <defs>
+          <linearGradient id="logoGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" stop-color="#0ea5e9"/><stop offset="0.55" stop-color="#14b8a6"/><stop offset="1" stop-color="#0e7490"/>
+          </linearGradient>
+        </defs>
+        <rect x="4" y="4" width="88" height="88" rx="24" fill="url(#logoGrad)"/>
+        <g fill="#fbbf24"><circle cx="48" cy="26" r="3"/><circle cx="30" cy="48" r="2.5"/><circle cx="66" cy="48" r="2.5"/><circle cx="48" cy="70" r="3"/></g>
+        <g stroke="#fbbf24" stroke-width="1.5" opacity="0.7"><line x1="48" y1="26" x2="30" y2="48"/><line x1="48" y1="26" x2="66" y2="48"/><line x1="30" y1="48" x2="48" y2="70"/><line x1="66" y1="48" x2="48" y2="70"/></g>
+        <path d="M48 14 L51 21 L58 22 L53 27 L54 34 L48 30 L42 34 L43 27 L38 22 L45 21 Z" fill="#fbbf24"/>
+      </svg>
+      <h1 id="loginTitle">Hello AI</h1>
+      <p class="login-promise">Your personal AI, live from the cloud</p>
+
+      <!-- GIS renders the real "Sign in with Google" button here (auth.js).
+           Empty until then: auth.js must show an honest state, never a
+           silent spinner (PLAN §4.2). -->
+      <div id="googleSigninBtn" class="google-signin"></div>
+      <p class="login-error" id="loginError" role="alert" hidden></p>
+
+      <p class="login-honest">Signed in as one Google account. Your chats stay on this device.</p>
+
+      <!-- DEV ONLY: visible while HELLO_AI_CONFIG.clientId is empty and
+           devSkipLogin is true. Removed once the real Client ID lands. -->
+      <button type="button" id="devSkipLogin" class="dev-skip-btn">Dev: skip login (no Client ID yet)</button>
+    </div>
+  </section>
+
+  <!-- ======================= SCREEN 2 — HOME ======================= -->
+  <section id="homeScreen" class="screen home" aria-labelledby="homeTitle" hidden>
+    <header class="home-top">
+      <span class="pill status-pill" id="homeStatusPill" data-status-pill role="status" aria-live="polite">
+        <span class="dot amber status-dot" data-status-dot></span>
+        <span data-status-text>Checking backend…</span>
+      </span>
+      <button type="button" id="historyBtn" class="icon-btn glass-light pressable" aria-label="Open chat history" aria-controls="historyDrawer" aria-expanded="false">☰</button>
+    </header>
+
+    <!-- THE ONE hero element with SVG liquid refraction (#liquidGlassHero,
+         scale 22, 18 s). greeting.js fills #greetingText / #greetingName;
+         #greetingSub starts hidden and is revealed by greeting.js. -->
+    <div id="greetingCard" class="home-hero greeting-reveal">
+      <h1 id="homeTitle"><span class="home-hero__salutation" id="greetingText" aria-live="off">Good morning</span> <span class="home-hero__name" id="greetingName" hidden></span></h1>
+      <p class="home-hero__sub" id="greetingSub" hidden>What shall we explore today?</p>
+    </div>
+
+    <!-- Pill composer mount: chat.js mounts the shared composer here on home.
+         A static composer instance is included so the shell renders complete
+         before chat.js lands; both instances share .composer-* classes. -->
+    <div id="composerMount">
+      <form class="composer glass-light" data-composer="home" action="#" novalidate>
+        <label class="visually-hidden" for="homeComposerInput">Type your message</label>
+        <textarea class="composer-input" id="homeComposerInput" rows="1" placeholder="Ask anything…" autocomplete="off"></textarea>
+        <button type="button" class="icon-btn composer-mic pressable" aria-label="Voice input"><svg class="icon" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-mic"></use></svg></button>
+        <button type="submit" class="composer-send pressable" aria-label="Send message">➤</button>
+      </form>
+    </div>
+
+    <!-- No chips on first load (Gemini pattern, PLAN §5.1). greeting.js /
+         chat.js unhide this row (max 4 chips) after the first chat or on
+         return visits. -->
+    <div id="chipsRow" class="home-chips chips" hidden>
+      <button type="button" class="home-chip chip pressable">🧠 What is AI?</button>
+      <button type="button" class="home-chip chip pressable">✍️ Write a poem</button>
+      <button type="button" class="home-chip chip pressable">💡 Explain quantum computing</button>
+      <button type="button" class="home-chip chip pressable">🌧️ A calm thought for today</button>
+    </div>
+
+    <footer class="home-footer"><b>Hello AI</b> • Live AI only • Answers come live from the backend</footer>
+  </section>
+
+  <!-- ======================= SCREEN 3 — CHAT ======================= -->
+  <section id="chatScreen" class="screen" aria-labelledby="chatTitle" hidden>
+    <header class="chat-header glass-light">
+      <button type="button" id="chatHistoryBtn" class="icon-btn pressable" aria-label="Open chat history" aria-controls="historyDrawer" aria-expanded="false">☰</button>
+      <h1 id="chatTitle" class="chat-title">New chat</h1>
+      <span class="pill status-pill" id="chatStatusPill" data-status-pill role="status" aria-live="polite">
+        <span class="dot amber status-dot" data-status-dot></span>
+        <span data-status-text>Checking backend…</span>
+      </span>
+      <!-- Avatar button opens the account sheet / bottom panel (panel.js). -->
+      <button type="button" id="chatAvatarBtn" class="icon-btn avatar-btn pressable" aria-label="Open account panel" aria-controls="bottomPanel" aria-expanded="false">
+        <img id="chatAvatarImg" src="" alt="" hidden>
+        <span id="chatAvatarFallback" aria-hidden="true">👤</span>
+      </button>
+    </header>
+
+    <!-- Transcript: CONTENT layer — solid surfaces, NOT glass (PLAN §2.1).
+         chat.js renders messages here with textContent only, never innerHTML. -->
+    <main id="chatList" class="chat-list" role="log" aria-live="polite" aria-label="Chat messages">
+      <div class="chat-empty" id="chatEmptyState">
+        <p>No chats yet — ask your first question.</p>
+      </div>
+    </main>
+
+    <button type="button" id="jumpToLatestBtn" class="pill jump-latest" hidden>↓ Jump to latest</button>
+
+    <form class="composer glass-light" id="chatComposer" data-composer="chat" action="#" novalidate>
+      <button type="button" class="icon-btn composer-plus pressable" aria-label="New chat"><svg class="icon" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-plus"></use></svg></button>
+      <label class="visually-hidden" for="messageInput">Type your message</label>
+      <textarea class="composer-input" id="messageInput" rows="1" placeholder="Type a message…" autocomplete="off"></textarea>
+      <button type="button" class="icon-btn composer-mic pressable" id="micBtn" aria-label="Voice input"><svg class="icon" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-mic"></use></svg></button>
+      <button type="submit" class="composer-send pressable" aria-label="Send message"><svg class="icon composer-send__icon" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-send"></use></svg><span class="composer-send__spinner" aria-hidden="true"></span></button>
+    </form>
+    <p class="voice-disclosure" id="voiceDisclosure">Voice is transcribed by Google.</p>
+  </section>
+
+  <!-- ======================= SCREEN 4 — HISTORY DRAWER ======================= -->
+  <div class="drawer-scrim" id="historyScrim" hidden></div>
+  <aside id="historyDrawer" class="glass-light history-drawer" aria-label="Chat history" hidden>
+    <div class="drawer-head">
+      <h2>History</h2>
+      <button type="button" id="historyCloseBtn" class="icon-btn pressable" aria-label="Close history"><svg class="icon" aria-hidden="true"><use href="assets/icons/sprite.svg#icon-close"></use></svg></button>
+    </div>
+
+    <!-- Account profile at the TOP of history (PLAN §7.1). Tap opens the
+         account sheet / bottom panel. Email shown only inside this app. -->
+    <button type="button" id="historyProfile" class="history-profile" aria-label="Open account panel">
+      <img id="historyAvatar" class="profile-photo" src="" alt="" hidden>
+      <span id="historyAvatarFallback" class="profile-photo-fallback" aria-hidden="true">👤</span>
+      <span class="profile-text">
+        <span id="historyProfileName" class="profile-name">Aadidev</span>
+        <span id="historyProfileEmail" class="profile-email"></span>
+      </span>
+    </button>
+
+    <button type="button" id="newChatBtn" class="new-chat-btn pressable">＋ New chat</button>
+
+    <label class="visually-hidden" for="historySearch">Search chats</label>
+    <input type="search" id="historySearch" class="history-search" placeholder="Search chats" autocomplete="off">
+
+    <!-- Grouped list: Pinned / Today / Yesterday / Last 7 days / Last 30 days.
+         history-ui.js renders rows here; each row: bold title + 1-line preview
+         + relative time + pin icon when pinned. -->
+    <ul id="historyList" class="history-list" aria-label="Past chats"></ul>
+    <p class="history-empty" id="historyEmptyState">No chats yet — your conversations will appear here. Ask your first question →</p>
+  </aside>
+
+  <!-- ======================= SCREEN 5 — CURVED BOTTOM PANEL ======================= -->
+  <div class="panel-scrim" id="panelScrim" hidden></div>
+  <section id="bottomPanel" class="glass-light bottom-panel" aria-label="Account and studio" hidden>
+    <div class="panel-handle" aria-hidden="true"></div>
+
+    <!-- Account section (top of panel) -->
+    <div id="panelAccount" class="panel-account">
+      <img id="panelAvatar" class="profile-photo" src="" alt="" hidden>
+      <span id="panelAvatarFallback" class="profile-photo-fallback" aria-hidden="true">👤</span>
+      <span class="profile-text">
+        <span id="panelAccountName" class="profile-name">Aadidev</span>
+        <span id="panelAccountEmail" class="profile-email"></span>
+        <span class="profile-model">Dolphin · Live</span>
+      </span>
+      <button type="button" id="panelSignOutBtn" class="panel-signout pressable">Sign out</button>
+      <button type="button" id="panelManageAccountBtn" class="panel-manage pressable" aria-label="Manage Google account (opens in browser)">Manage account</button>
+    </div>
+
+    <!-- Studio section: 7 buttons (PLAN §8.2). 4 preset + 3 invented.
+         panel.js wires each via data-studio-action. -->
+    <div id="studioGrid" class="studio-grid" role="group" aria-label="Studio actions">
+      <button type="button" class="studio-btn pressable" id="studioNewChat" data-studio-action="new-chat">＋<span>New chat</span></button>
+      <button type="button" class="studio-btn pressable" id="studioVoice" data-studio-action="voice-talk">🎙️<span>Voice talk</span></button>
+      <button type="button" class="studio-btn pressable" id="studioSearch" data-studio-action="search-chats">🔍<span>Search chats</span></button>
+      <button type="button" class="studio-btn pressable" id="studioShare" data-studio-action="share-export">↗️<span>Share / Export</span></button>
+      <button type="button" class="studio-btn pressable" id="studioExplain" data-studio-action="explain-simply">✨<span>Explain simply</span></button>
+      <button type="button" class="studio-btn pressable" id="studioMalayalam" data-studio-action="malayalam-mode">മ<span>മലയാളം mode</span></button>
+      <button type="button" class="studio-btn pressable" id="studioRecap" data-studio-action="todays-recap">🗓️<span>Today's recap</span></button>
+    </div>
+  </section>
+
+  <!-- Toasts + live regions -->
+  <div id="toastRoot" class="toast-root" aria-live="polite"></div>
+  <div id="livePolite" class="visually-hidden" aria-live="polite"></div>
+  <div id="liveAssertive" class="visually-hidden" aria-live="assertive"></div>
 </div>
-<script>
-window.CLOUD_RUN_URL = "https://precision-clause-outthink.ngrok-free.dev";
-const chat = document.getElementById('chat');
-const emptyState = document.getElementById('emptyState');
-const input = document.getElementById('messageInput');
-const sendBtn = document.getElementById('sendBtn');
-const statusDot = document.getElementById('statusDot');
-const statusText = document.getElementById('statusText');
-const modeText = document.getElementById('modeText');
-const themeBtn = document.getElementById('themeBtn');
-const savedTheme = localStorage.getItem('hello-ai-theme');
-if (savedTheme) document.documentElement.setAttribute('data-theme', savedTheme);
-function syncThemeBtn(){
-const dark = document.documentElement.getAttribute('data-theme') !== 'light';
-themeBtn.textContent = dark ? '🌚' : '🌞';
-themeBtn.title = dark ? 'Switch to light mode' : 'Switch to dark mode';
-}
-syncThemeBtn();
-themeBtn.addEventListener('click', () => {
-const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-document.documentElement.setAttribute('data-theme', next);
-localStorage.setItem('hello-ai-theme', next);
-syncThemeBtn();
-});
-function setStatus(kind, text, mode){
-statusDot.className = 'dot ' + (kind === 'ok' ? 'green' : kind === 'error' ? 'red' : 'amber');
-statusText.textContent = text;
-if (mode) modeText.textContent = mode;
-}
-function refreshStatus(){
-const url = (window.CLOUD_RUN_URL || '').trim();
-if (!url){ setStatus('warn', 'Live AI not connected • Set the backend URL', 'Live AI'); }
-else { setStatus('ok', 'Backend connected • Live AI ready', 'Live AI'); }
-}
-async function checkBackend(){const u=(window.CLOUD_RUN_URL||'').trim();if(!u){setStatus('warn','Live AI not connected • Set the backend URL','Live AI');return;}setStatus('warn','Checking backend...','Live AI');try{const r=await fetch(u.replace(/\/$/,'')+'/health',{cache:'no-store',headers:{'ngrok-skip-browser-warning':'true'}});const d=await r.json();if(!r.ok||!d||d.status!=='ok')throw new Error('Backend unhealthy');setStatus('ok','Backend connected • Live AI ready','Live AI');}catch(e){setStatus('error','Backend offline • Live AI is starting','Live AI');}} checkBackend(); setInterval(checkBackend,60000);
-function hideEmpty(){ if (emptyState) emptyState.style.display = 'none'; }
-function scrollDown(){ chat.scrollTop = chat.scrollHeight; window.scrollTo({top: document.body.scrollHeight, behavior:'smooth'}); }
-function addMessage(text, who, opts = {}){
-hideEmpty();
-const wrap = document.createElement('div');
-wrap.className = 'msg ' + who + (opts.error ? ' error' : '');
-const av = document.createElement('div');
-av.className = 'avatar'; av.textContent = who === 'user' ? '🧑‍🚀' : '🤖';
-const bubble = document.createElement('div');
-bubble.className = 'bubble';
-bubble.textContent = text;
-if (opts.source){ const meta = document.createElement('span'); meta.className = 'meta'; meta.textContent = opts.source; bubble.appendChild(meta); }
-wrap.append(av, bubble);
-chat.appendChild(wrap);
-scrollDown();
-return wrap;
-}
-let typingEl = null;
-function showTyping(){
-hideEmpty();
-typingEl = document.createElement('div');
-typingEl.className = 'msg ai';
-typingEl.innerHTML = '<div class="avatar">🤖</div><div class="bubble typing" aria-label="AI is typing"><i></i><i></i><i></i></div>';
-chat.appendChild(typingEl); scrollDown();
-}
-function hideTyping(){ if (typingEl){ typingEl.remove(); typingEl = null; } }
-async function callBackend(message){
-const base = (window.CLOUD_RUN_URL || '').trim().replace(/\/+$/, '');
-const url = base + '/api/chat';
-const ctrl = new AbortController();
-const timer = setTimeout(() => ctrl.abort(), 240000);
-try {
-const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message }), signal: ctrl.signal });
-clearTimeout(timer);
-if (!res.ok) throw new Error('Backend returned HTTP ' + res.status);
-const data = await res.json().catch(() => ({}));
-const reply = data.reply || data.response || data.answer || data.text || data.message;
-if (!reply || typeof reply !== 'string') throw new Error('Backend reply was empty');
-return reply;
-} catch (err){ clearTimeout(timer); throw err; }
-}
-async function askAI(message){
-const hasBackend = !!(window.CLOUD_RUN_URL || '').trim();
-showTyping();
-sendBtn.disabled = true;
-try {
-if (hasBackend){
-const reply = await callBackend(message);
-hideTyping();
-setStatus('ok', 'Backend connected • Live AI ready', 'Live AI');
-addMessage(reply, 'ai', { source: 'Live AI • Cloud Run' });
-} else {
-hideTyping();
-addMessage('Backend offline — Live AI is starting, please wait a moment and try again.', 'ai', { source: 'Backend offline', error: true });
-}
-} catch (err){
-hideTyping();
-setStatus('error', 'Backend offline — Live AI is starting', 'Live AI');
-addMessage('Backend offline — Live AI is starting, please wait a moment and try again.', 'ai', { source: 'Backend offline', error: true });
-} finally { sendBtn.disabled = false; input.focus(); }
-}
-function send(){
-const text = input.value.trim();
-if (!text) return;
-addMessage(text, 'user');
-input.value = '';
-input.style.height = 'auto';
-askAI(text);
-}
-document.getElementById('composer').addEventListener('submit', e => { e.preventDefault(); send(); });
-input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); send(); } });
-input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 140) + 'px'; });
-document.getElementById('chips').addEventListener('click', e => {
-const btn = e.target.closest('.chip');
-if (!btn) return;
-input.value = btn.textContent.replace(/^[^\w]+/, '').trim();
-const map = { 'Hello!':'Hello!', 'What is AI?':'What is AI?', 'Explain Python in simple words':'Explain Python in simple words', 'What is a black hole?':'What is a black hole?', 'Tell me about music & peace':'Tell me about music and peace' };
-input.value = map[btn.textContent.trim()] || btn.textContent.trim();
-send();
-});
-document.getElementById('clearBtn').addEventListener('click', () => { chat.querySelectorAll('.msg').forEach(n => n.remove()); emptyState.style.display = ''; input.focus(); });
-if (!sessionStorage.getItem('hello-ai-welcomed')){
-sessionStorage.setItem('hello-ai-welcomed', '1');
-setTimeout(() => { addMessage('Hello, Aadidev! 🤖🚀 I\'m Hello AI.\n\nAsk me anything — even a complex question. I answer live from the AI backend.', 'ai', { source: 'Live AI • Cloud Run' }); }, 500);
-}
-input.focus();
-</script>
+
+<!-- JS modules (defer, PLAN §12.1 order). Modules not yet written by their
+     owners will 404 until they land — app.js guards for their absence and
+     the shell still renders. -->
+<script src="js/config.js" defer></script>
+<script src="js/auth.js" defer></script>
+<script src="js/greeting.js" defer></script>
+<script src="js/store.js" defer></script>
+<script src="js/titles.js" defer></script>
+<script src="js/chat.js" defer></script>
+<!-- NOTE: js/voice.js is NOT linked here. It is an ES module, loaded only
+     via dynamic import() on first mic tap (chat.js / panel.js). A classic
+     <script src="js/voice.js"> would throw a SyntaxError on its exports. -->
+<script src="js/history-ui.js" defer></script>
+<script src="js/panel.js" defer></script>
+<script src="js/app.js" defer></script>
 </body>
 </html>
